@@ -88,8 +88,6 @@ class Picoscope4000:
         self.handle = None
         self.channels = [0,0]
         self.streaming_sample_interval = ctypes.c_uint(1000)
-        self.timeIntervalNS=ctypes.c_uint(7)
-        self.maxSamples=ctypes.c_uint(7)
         self.streaming_buffer_length =100000
         print(LIBNAME) 
         # load the library
@@ -232,15 +230,6 @@ class Picoscope4000:
                 print('Try starting streaming mode')
                 print('Result: '+str(res)+' (0= PICO_OK, 64 = PICO_INVALID_SAMPLERATIO)')
                 print(self.streaming_sample_interval)
-        finally:
-            pass
-
-    def get_Timebase(self, timebase=79,noSamples=1000,segmentIndex= 1):
-        try:
-            res=self.lib.ps4000aGetTimebase(self.handle, timebase, noSamples, ctypes.byref(self.timeIntervalNS),ctypes.byref(self.maxSamples),None)
-            print('TimeInterval_Ns: '+ str(self.timeIntervalNS))
-            print('maxSamples: '+str(self.maxSamples))
-            print(res)
         finally:
             pass
         
