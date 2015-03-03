@@ -1,5 +1,5 @@
 import numpy as np
-import PQTools3 as pq
+import PQTools as pq
 import time
 
 class ring_array_global_data():

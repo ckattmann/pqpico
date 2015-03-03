@@ -4,7 +4,7 @@ import numpy as np
 import time
 import sys
 import matplotlib.pyplot as plt
-from ring_array import ring_array, ring_array_global_data
+from ringarray import ring_array, ring_array_global_data
 import logging
 
 PLOTTING = 0
