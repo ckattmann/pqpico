@@ -69,7 +69,6 @@ dataLogger.addHandler(shd)
 try:    
     while True:
         while data.size < min_snippet_length:
-           
             snippet = pico.get_queue_data()
             snippet_array.attach_to_back(np.array([snippet.size]))
 
