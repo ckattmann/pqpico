@@ -21,6 +21,7 @@ data = ring_array_global_data(size=2000000)
 data_10seconds = ring_array(size=(20*streaming_sample_interval)) 
 data_10min = ring_array(size=5000000)
 rms_half_period = np.array(np.zeros(20))
+snippet_array = ring_array(size=1000000)
 rms_10periods_list = []
 thd_10periods_list = []
 harmonics_10periods_list = []
@@ -28,7 +29,8 @@ harmonics_10periods_list = []
 first_value = 0
 is_first_iteration = 1
 #time.sleep(0.5) # Activate when first data is None and first iterations runs with None data, should be fixed
-
+if PLOTTING:
+    plotfreq = pq.plotting_fequency()
 # Initialize Logging
 # ==================
 
@@ -67,8 +69,9 @@ dataLogger.addHandler(shd)
 try:    
     while True:
         while data.size < min_snippet_length:
-            
+            pico.put_queue_data() #muss wieder entfernt werden
             snippet = pico.get_queue_data()
+            snippet_array.attach_to_back(np.array([snippet.size]))
 
             if snippet is not None:
                 data.attach_to_back(snippet)
@@ -109,6 +112,8 @@ try:
         # =============================================
         frequency_10periods = pq.calculate_frequency_10periods(zero_indices, streaming_sample_interval)
         dataLogger.debug('Frequency of 10 periods: '+str(frequency_10periods))
+        if PLOTTING:
+            plotfreq.plot_frequency(frequency_10periods)
         dataLogger.debug('Mean value of 10 periods: '+str(np.mean(data_10periods)))
     
      
@@ -148,13 +153,13 @@ try:
             # =======================
             rms_10min = pq.count_up_values(rms_10periods_list)
             rms_10periods_list = []
-            dataLogger.debug('RMS voltage of 10 min: '+str(rms_10min))
+            dataLogger.info('RMS voltage of 10 min: '+str(rms_10min))
             
             # Calculate THD of 10 min
             # =======================
             thd_10min = pq.count_up_values(thd_10periods_list)
             thd_10periods_list = []
-            dataLogger.debug('THD of 10 min: '+str(thd_10min))
+            dataLogger.info('THD of 10 min: '+str(thd_10min))
             
             # Calculate Harmonics of 10 min
             # =======================
@@ -180,7 +185,14 @@ try:
         if (data_10min.size > 2400000):
             flicker_data = data_10min.cut_off_front2(600*streaming_sample_interval/250)
             Pst = pq.calculate_Pst(flicker_data)
-            dataLogger.debug('Pst: '+str(Pst))
+            dataLogger.info('Pst: '+str(Pst))
+            if True:
+                plt.plot(snippet_array.cut_off_front2(snippet_array.size), '.')
+                plt.grid(True)
+                plt.ylabel('Messpunkte pro Snippet')
+                plt.xlabel('Anzahl der eingelesenen Snippets in 10 min')
+                plt.title('Snippetlaenge:')
+                plt.show()
            
 finally:
     pico.close_unit()
