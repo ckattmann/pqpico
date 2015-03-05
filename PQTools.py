@@ -435,8 +435,7 @@ def test_harmonics(harmonics):
     harmonics_boolean = harmonics[1:25]/harmonics[0] > limits
     if harmonics_boolean.any():
         index = np.where(harmonics_boolean)
-        return 'The following amplitudes of the harmonics are too high: '
-                +str(index)
+        return 'The following amplitudes of the harmonics are too high: '+str(index)
     else:
         return 'Harmonics are ok!'
 
