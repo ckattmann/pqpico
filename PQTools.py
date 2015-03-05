@@ -426,7 +426,7 @@ def test_thd(thd):
     if thd>8:
         return 'The THD is with '+str(thd)+' % too high!'
     else:
-        return 'The THD is with '+str(thd)+' V in a legal window.'
+        return 'THD of 10 min: '+str(thd)+' %'
 
 def test_harmonics(harmonics):
     limits = np.array([0.02,0.05,0.01,0.06,0.005,0.05,0.005,0.015,0.005,0.035,
@@ -445,7 +445,7 @@ def test_rms(rms):
     elif rms>230*1.1:
         return 'The RMS is with '+str(rms)+' V too high!'
     else:        
-        return 'The RMS is with '+str(rms)+' V in a legal window.'
+        return 'RMS voltage of 10 min: '+str(rms)+' V'
 
 def test_frequency(frequency):
     if frequency<49.5:
@@ -453,10 +453,10 @@ def test_frequency(frequency):
     elif frequency>50.5:
         return 'The frequency is with '+str(frequency)+' Hz too high!'
     else:
-        return 'The frequency is with '+str(frequency)+' Hz in a legal window.'
+        return 'Frequency of 10s: '+str(frequency)+' Hz'
 
 def test_plt(plt):
     if plt>1:
         return 'The Plt is with a value of '+str(plt)+' too high!'
     else:
-        return 'The Plt is with a value of '+str(plt)+' in a legal window.'  
+        return 'Plt: '+str(plt)  

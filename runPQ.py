@@ -151,21 +151,18 @@ try:
             # =======================
             rms_10min = pq.count_up_values(rms_10periods_list)
             rms_10periods_list = []
-            dataLogger.debug('RMS voltage of 10 min: '+str(rms_10min))
             dataLogger.info(pq.test_rms(rms_10min))
             
             # Calculate THD of 10 min
             # =======================
             thd_10min = pq.count_up_values(thd_10periods_list)
             thd_10periods_list = []
-            dataLogger.debug('THD of 10 min: '+str(thd_10min))
             dataLogger.info(pq.test_thd(thd_10min))
             
             # Calculate Harmonics of 10 min
             # =======================
             harmonics_10min = pq.count_up_values(harmonics_10periods_list)
             harmonics_10periods_list = []
-            dataLogger.debug('Harmonics of 10 min: '+str(harmonics_10min))
             dataLogger.info(pq.test_harmonics(harmonics_10min))
             
         # Calculate frequency of 10 seconds
@@ -179,7 +176,6 @@ try:
                 plt.grid()
                 plt.show()
             frequency = pq.calculate_Frequency(frequency_data, streaming_sample_interval)
-            dataLogger.debug('Frequency of 10s: '+str(frequency))
             dataLogger.info(pq.test_frequency(frequency))
                 
         # Calculate flicker of 10 min
