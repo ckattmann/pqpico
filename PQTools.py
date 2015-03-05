@@ -198,16 +198,6 @@ def calculate_THD(harmonics_10periods, SAMPLING_RATE):
     harmonics_10periods = harmonics_10periods**2
     THD = np.sqrt(np.sum(harmonics_10periods[1:])/harmonics_10periods[0])*100
     return THD
-
-def test_harmonics(data, SAMPLING_RATE):
-    if (Class == 1):
-        harmonics_amplitudes = calculate_harmonics_voltage(data, SAMPLING_RATE)
-    elif (Class == 0):
-        harmonics_amplitudes = calculate_harmonics_standard(data, SAMPLING_RATE)
-    else:
-        None
-    
-    return 0
     
 # Flicker
 # =======
@@ -285,18 +275,19 @@ def calculate_Pst(data):
     num2 = [1 / OMEGA2, 1]
     denum2 = [1 / (OMEGA3 * OMEGA4), 1 / OMEGA3 + 1 / OMEGA4, 1]
     
-    b_w, a_w = signal.bilinear(np.convolve(num1, num2), np.convolve(denum1, denum2), fs)
+    b_w, a_w = signal.bilinear(np.convolve(num1, num2),
+                               np.convolve(denum1, denum2), fs)
     u_w = signal.lfilter(b_w, a_w, u_bw)
     
     ## Block 4: Quadrierung und Varianzschätzer
     
     LOWPASS_2_ORDER  = 1
     LOWPASS_2_CUTOFF = 1 / (2 * np.pi * 300e-3)  # Zeitkonstante 300 msek.
-    SCALING_FACTOR   = 1238400  # Skalierung des Signals auf eine Wahrnehmbarkeitsskala
+    SCALING_FACTOR   = 1238400  # Skalierung auf eine Wahrnehmbarkeitsskala
     
     u_q = u_w**2
     
-    b_lp, a_lp = signal.butter(LOWPASS_2_ORDER, (LOWPASS_2_CUTOFF/(fs/2)), 'low')
+    b_lp, a_lp = signal.butter(LOWPASS_2_ORDER,(LOWPASS_2_CUTOFF/(fs/2)),'low')
     s = SCALING_FACTOR * signal.lfilter(b_lp, a_lp, u_q)
     
     ## Block 5: Statistische Berechnung
@@ -395,7 +386,7 @@ def calculate_unbalance(rms_10min_u, rms_10min_v, rms_10min_w):
 # ======================
     
 def count_up_values(values_list):
-    new_value = np.sqrt(np.sum(np.power(values_list,2), axis=0)/len(values_list))
+    new_value = np.sqrt(np.sum(np.power(values_list,2),axis=0)/len(values_list))
     return new_value
 
 # Plot functions
@@ -428,5 +419,45 @@ class plotting_frequency():
         plt.ion()
         plt.draw()
 
+# Compare with Standart
+# =====================
 
-        
+def test_thd(thd):
+    if thd>8:
+        return 'The THD is with '+str(thd)+' % too high!'
+    else:
+        return 'The THD is with '+str(thd)+' V in a legal window.'
+
+def test_harmonics(harmonics):
+    limits = np.array([0.02,0.05,0.01,0.06,0.005,0.05,0.005,0.015,0.005,0.035,
+                       0.005,0.03,0.005,0.005,0.005,0.02,0.005,0.015,0.005,
+                       0.005,0.005,0.015,0.005,0.015])
+    harmonics_boolean = harmonics[1:25]/harmonics[0] > limits
+    if harmonics_boolean.any():
+        index = np.where(harmonics_boolean)
+        return 'The following amplitudes of the harmonics are too high: '
+                +str(index)
+    else:
+        return 'Harmonics are ok!'
+
+def test_rms(rms):
+    if rms<230*0.9:
+        return 'The RMS is with '+str(rms)+' V too low!'
+    elif rms>230*1.1:
+        return 'The RMS is with '+str(rms)+' V too high!'
+    else:        
+        return 'The RMS is with '+str(rms)+' V in a legal window.'
+
+def test_frequency(frequency):
+    if frequency<49.5:
+        return 'The frequency is with '+str(frequency)+' Hz too low!'
+    elif frequency>50.5:
+        return 'The frequency is with '+str(frequency)+' Hz too high!'
+    else:
+        return 'The frequency is with '+str(frequency)+' Hz in a legal window.'
+
+def test_plt(plt):
+    if plt>1:
+        return 'The Plt is with a value of '+str(plt)+' too high!'
+    else:
+        return 'The Plt is with a value of '+str(plt)+' in a legal window.'  
