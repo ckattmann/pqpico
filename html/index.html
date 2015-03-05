@@ -5,17 +5,20 @@
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
 <script src="http://code.highcharts.com/highcharts.js"></script>
 
-<link rel="stylesheet" type="text/css" href="stylesheet.css">
+<link rel="stylesheet" type="text/css" href="main.css">
 
 </head>
 <body>
-<ul id="header">
-    <li>Status</li>
-    <li>Frequenz</li>
-    <li>Spannung</li>
-    <li>Harmonische</li>
-    <li>Flicker</li>
-</ul>
+
+<div id="graybar">
+    <ul id="header">
+        <li><a href="status.html">Status</a></li>
+        <li><a href="frequency.html">Frequenz</a></li>
+        <li><a href="">Spannung</a></li>
+        <li>Harmonische</li>
+        <li>Flicker</li>
+    </ul>
+</div>
 
 <div id="container"></div>
 
@@ -30,7 +33,7 @@
         });
 
 
-        $.getJSON("jsontest/data.json", function(data) {
+        $.getJSON("jsondata/data.json", function(data) {
             console.log('getJSON');
             console.log(data);
             vdata = data.data;
