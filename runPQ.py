@@ -102,19 +102,13 @@ try:
         # ===============
         zero_indices = data.get_zero_indices()[:21]
         if zero_indices.size < 15 or zero_indices.size > 200:
+            #Is this really 50Hz Sinus Data?
             dataLogger.error('Number of zero crossings in '+str(data.get_data_view().size)+': '+str(zero_indices.size))
         dataLogger.debug('Cutting off :'+str(zero_indices[20]))
         queueLogger.debug('Cutting off:            -'+str(zero_indices[20]))        
         data_10periods = data.cut_off_front2(zero_indices[20], 20)
         queueLogger.debug('Length of current data: '+str(data.size))
-        
-        # Calculate and store frequency for 10 periods
-        # =============================================
-        frequency_10periods = pq.calculate_frequency_10periods(zero_indices, streaming_sample_interval)
-        dataLogger.debug('Frequency of 10 periods: '+str(frequency_10periods))
-        dataLogger.debug('Mean value of 10 periods: '+str(np.mean(data_10periods)))
-    
-     
+
         # Calculate and store RMS values of half periods 
         # ==============================================
         for i in xrange(20):    
@@ -124,6 +118,12 @@ try:
             plt.title(' Voltage RMS of Half Periods')
             plt.grid(True)
             plt.show()
+
+        # Calculate and store frequency for 10 periods
+        # =============================================
+        frequency_10periods = pq.calculate_frequency_10periods(zero_indices, streaming_sample_interval)
+        dataLogger.debug('Frequency of 10 periods: '+str(frequency_10periods))
+        dataLogger.debug('Mean value of 10 periods: '+str(np.mean(data_10periods)))
 
         # Calculate and store RMS values of 10 periods
         # ============================================
@@ -138,10 +138,26 @@ try:
         harmonics_10periods_list.append(harmonics_10periods)
         thd_10periods_list.append(thd_10periods)
         dataLogger.debug('THD of 10 periods: '+str(thd_10periods))
-        
+
+
+        # Calculate frequency of 10 seconds
+        # =================================
+        if (data_10seconds.size > 10*streaming_sample_interval):
+            frequency_data = data_10seconds.cut_off_front2(10*streaming_sample_interval)
+            queueLogger.debug('Size frequency_data snippet: '+str(frequency_data.size))
+            #pq.compare_filter_for_zero_crossings(frequency_data, streaming_sample_interval)
+            if PLOTTING:
+                plt.plot(frequency_data)
+                plt.grid()
+                plt.show()
+            frequency = pq.calculate_Frequency(frequency_data, streaming_sample_interval)
+            dataLogger.info(pq.test_frequency(frequency))
+
+
         # Prepare for 10 min Measurement
         # ==============================
         counter += data_10periods.size
+        # Synchronize data so absolutely nothing is lost
         if (counter >= 600*streaming_sample_interval):
             data.attach_to_front(data_10periods[:(600*streaming_sample_interval-counter)])
             queueLogger.debug('Length of current data: '+str(data.size))
@@ -165,19 +181,7 @@ try:
             harmonics_10periods_list = []
             dataLogger.info(pq.test_harmonics(harmonics_10min))
             
-        # Calculate frequency of 10 seconds
-        # =================================
-        if (data_10seconds.size > 10*streaming_sample_interval):
-            frequency_data = data_10seconds.cut_off_front2(10*streaming_sample_interval)
-            queueLogger.debug('Size frequency_data snippet: '+str(frequency_data.size))
-            #pq.compare_filter_for_zero_crossings(frequency_data, streaming_sample_interval)
-            if PLOTTING:
-                plt.plot(frequency_data)
-                plt.grid()
-                plt.show()
-            frequency = pq.calculate_Frequency(frequency_data, streaming_sample_interval)
-            dataLogger.info(pq.test_frequency(frequency))
-                
+           
         # Calculate flicker of 10 min
         # ===========================
         if (data_10min.size > 2400000):
@@ -192,7 +196,10 @@ try:
                 plt.xlabel('Anzahl der eingelesenen Snippets in 10 min')
                 plt.title('Snippetlaenge:')
                 plt.show()
-            
+
+
+        # Calculate flicker of 2 hours    
+        # ============================
         if (len(pst_list)==12):
             Plt = pq.calculate_Plt(pst_list)
             dataLogger.info(pq.test_plt(Plt))
