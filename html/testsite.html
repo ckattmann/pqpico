@@ -5,11 +5,19 @@
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
 <script src="http://code.highcharts.com/highcharts.js"></script>
 
+<link rel="stylesheet" type="text/css" href="stylesheet.css">
+
 </head>
 <body>
+<ul id="header">
+    <li>Status</li>
+    <li>Frequenz</li>
+    <li>Spannung</li>
+    <li>Harmonische</li>
+    <li>Flicker</li>
+</ul>
 
-
-<div id="container" style="width:100%; height:100%;" ></div>
+<div id="container"></div>
 
 <script>
         var vdata = [];
@@ -20,18 +28,6 @@
             console.log("the Heading has been clicked");
             console.log(vdata);
         });
-        //$.get("http://localhost:9998", function(data) {
-        //    console.log(data);
-        //});
-        //$.get("http://localhost:9999", function(data) {
-        //    console.log(data);
-        //});
-        //$.get("data.csv", function(csv) {
-        //    console.log(csv);
-        //});
-        //$.getJSON("jsontest/jsonwriter.py", function(data) {
-        //    console.log(data);
-        //}); 
 
 
         $.getJSON("jsontest/data.json", function(data) {

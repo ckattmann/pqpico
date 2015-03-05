@@ -1,0 +1,32 @@
+body {
+    margin: 0px;
+    border: 0px;
+    font-family: "Lucida Grande","Lucida Sans Unicode","Arial","sans-serif" 
+}
+
+ul#header {
+    float:left;
+    background-color: grey;
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+    min-width: 100%;
+    min-height: 15%;
+    clear: both;
+}
+
+ul#header li {
+    display: inline;
+    list-style: none;
+    margin: 30px;
+    text-decoration: none;
+    position: relative;
+    color: white;
+}
+
+div#container {
+    width: 75%;
+    float: left;
+    margin-left: auto;
+    margin-right: auto;
+}
