@@ -231,7 +231,6 @@ class Picoscope4000:
             return
 
         res = self.lib.ps4000aCloseUnit(self.handle.value)
-        print(' '+str(res))
         self.handle = None
         return res
         
@@ -264,7 +263,8 @@ class Picoscope4000:
         
 # Set Data Buffer for each channel of the PS4824 scope      
     def set_data_buffer(self, channel=PS4000_CHANNEL_A, segmentIndex=0, mode=0):
-        print('==== SetDataBuffer ====')
+        if VERBOSE:
+            print('==== SetDataBuffer ====')
 
         if self.fakeDataMode:
             return
@@ -367,22 +367,24 @@ class Picoscope4000:
         sampleIntervalTimeUnit = self.streaming_sample_interval_unit
 
         #Generate new folder for streaming data
-        if self.streaming_sample_interval.value == 1:
-            samplerate_string = str('1')+SAMPLERATE_MAP[self.streaming_sample_interval_unit-1]
-        else:
-            samplerate_string = str(1000/self.streaming_sample_interval.value)+SAMPLERATE_MAP[self.streaming_sample_interval_unit]
-        foldername = datetime.datetime.now().strftime('%Y-%m-%d__%H-%M-%S__'+samplerate_string+'S')
-        # -> results in a foldername like '2015-01-22__22-32-40__500k'
-        folder = os.path.join(datadirectory_pokini,foldername)
-        self.folder = folder
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+        is_store_all_values = False
+        if is_store_all_values:
+            if self.streaming_sample_interval.value == 1:
+                samplerate_string = str('1')+SAMPLERATE_MAP[self.streaming_sample_interval_unit-1]
+            else:
+                samplerate_string = str(1000/self.streaming_sample_interval.value)+SAMPLERATE_MAP[self.streaming_sample_interval_unit]
+            foldername = datetime.datetime.now().strftime('%Y-%m-%d__%H-%M-%S__'+samplerate_string+'S')
+            # -> results in a foldername like '2015-01-22__22-32-40__500k'
+            folder = os.path.join(datadirectory_pokini,foldername)
+            self.folder = folder
+            if not os.path.exists(folder):
+                os.makedirs(folder)
 
-        if VERBOSE:
-            print(' Data will be saved to '+str(folder))
-        
-        # Copy parameters.ini into the folder
-        shutil.copy2(os.path.join(codedirectory_pokini,'parameters.ini'),folder)
+            if VERBOSE:
+                print(' Data will be saved to '+str(folder))
+            
+            # Copy parameters.ini into the folder
+            shutil.copy3(os.path.join(codedirectory_pokini,'parameters.ini'),folder)
 
         try:
             autoStop=0
