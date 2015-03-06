@@ -57,24 +57,11 @@
                     events: {
                         load: function() {
                             var series = this.series[0];
-                            setInterval(function() {
-                                $.getJSON("jsondata/frequency.json", function(data) {
-                                    vdata = data.freq;
-                                    });
-                                if (vdata.length > series.data.length)
-                                {
-                                    var i = series.data.length;
-                                    for (; i < vdata.length; i++)
-                                    {
-                                        series.addPoint(vdata[i],true,false,true);
-                                    }
-                                }
-                                //console.log(series.data.length);
-                                //console.log(series);
-
-                                //window.frames["maingraph"].location.reload();
-                            }
-                                ,1000);
+                            setInterval(function() {    $.getJSON("jsondata/frequency.json", function(data) {
+                                                        vdata = data.freq; });
+                                                        if (vdata.length > series.data.length)
+                                                        {   var i = series.data.length;
+                                                            for (; i < vdata.length; i++)  { series.addPoint(vdata[i],true,false,true); } } } ,1000);
                         },
                     }
                 },

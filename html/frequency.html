@@ -15,31 +15,34 @@
 
         $.getJSON("jsondata/frequency.json", function(data) {
             console.log('getJSON');
-            console.log(data);
             vdata = data.freq;
+            console.log(vdata);
             
             $('#maingraph').highcharts({
                 chart: {
                     type: 'line',
                     events: {
                         load: function() {
-                            var series = this.series[0];
-                            console.log(series)
-                            console.log(this)
-                            console.log(series.data);
+                            console.log("$(this):");
+                            console.log($(this));
+                            console.log(this.series);
+                            console.log(this.series[0]);
+                            console.log(this.series[0].data);
+                            console.log(oldData);
+                            var oldData = $(this).series[0].data;
                             setInterval(function() {
                                 $.getJSON("jsondata/frequency.json", function(data) {
                                      var vdata = data.freq;
                                      console.log('Received Data: '+vdata);
-                                     console.log('Series: '+series.data);
+                                     console.log('Series: '+oldData);
                                     //extract more data
                                     });
-                                if (vdata.length > series.data.length)
+                                if (vdata.length > oldData.length)
                                 {
-                                    var i = series.data.length;
+                                    var i = oldData.length;
                                     for (; i < vdata.length; i++)
                                     {
-                                        series.addPoint(vdata[i],true,false,true);
+                                        oldData.addPoint(vdata[i],true,false,true);
                                         console.log('Adding point: '+vdata[i])
                                     }
                                 }
