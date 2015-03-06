@@ -3,9 +3,11 @@ import PQTools as pq
 import numpy as np
 import time
 import sys
+import os
 import matplotlib.pyplot as plt
 from ringarray import ring_array, ring_array_global_data
 import logging
+import json
 
 PLOTTING = 0
 
@@ -65,6 +67,23 @@ shd.setFormatter(formatterd)
 
 dataLogger.addHandler(fhd)
 dataLogger.addHandler(shd)
+
+
+# Initialize JSON files
+# =====================
+
+freqFilePath = os.path.join('html','jsondata','frequency.json')
+if not os.path.isfile(freqFilePath):
+    print('No frequency.json found, creating...')
+    with open(freqFilePath,'wb') as freqFile:
+        freqDataDict = {'freq':[]}
+        freqDataJson = json.dumps(freqDataDict)
+        print(str(freqDataJson))
+        freqFile.write(freqDataJson)
+
+
+# Main PQ Measurement and Calculation loop
+# ========================================
 
 try:    
     while True:
@@ -152,6 +171,21 @@ try:
                 plt.show()
             frequency = pq.calculate_Frequency(frequency_data, streaming_sample_interval)
             dataLogger.info(pq.test_frequency(frequency))
+
+            # Enter into frequency.json
+            with open(os.path.join('html','jsondata','frequency.json'),'rb') as f:
+                rawJson = f.read()
+
+            print(rawJson)
+            jsonDict = json.loads(rawJson)
+            freqData = jsonDict['freq']
+            freqData.append(frequency)
+            print(str(freqData))
+            jsonDict['freq'] = freqData
+            rawJson = json.dumps(jsonDict)
+
+            with open(os.path.join('html','jsondata','frequency.json'),'wb') as f:
+                f.write(rawJson)
 
 
         # Prepare for 10 min Measurement

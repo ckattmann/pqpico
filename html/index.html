@@ -46,10 +46,10 @@
     jQuery(document).ready(function($) {
         console.log('Jquery');
 
-        $.getJSON("jsondata/data.json", function(data) {
+        $.getJSON("jsondata/frequency.json", function(data) {
             console.log('getJSON');
             console.log(data);
-            vdata = data.data;
+            vdata = data.freq;
             
             $('#container').highcharts({
                 chart: {
@@ -58,9 +58,8 @@
                         load: function() {
                             var series = this.series[0];
                             setInterval(function() {
-                                $.getJSON("jsontest/data.json", function(data) {
-                                    console.log(data.data);
-                                    vdata = data.data;
+                                $.getJSON("jsondata/frequency.json", function(data) {
+                                    vdata = data.freq;
                                     });
                                 if (vdata.length > series.data.length)
                                 {
@@ -72,6 +71,8 @@
                                 }
                                 //console.log(series.data.length);
                                 //console.log(series);
+
+                                //window.frames["maingraph"].location.reload();
                             }
                                 ,1000);
                         },
@@ -88,7 +89,7 @@
                         text: 'Frequency / Hz',
                     },
                     plotBands: [{
-                            color: '#80B192',
+                            color: '#D0D1D2',
                             from: 49.8,
                             to: 50.2}]
                 },

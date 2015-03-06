@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+</head>
+<body>
+<div id="maingraph"></div>
+<script>
+    var vdata = [];
+    console.log('Script');
+    jQuery(document).ready(function($) {
+        console.log('Jquery');
+
+        $.getJSON("jsondata/frequency.json", function(data) {
+            console.log('getJSON');
+            console.log(data);
+            vdata = data.freq;
+            
+            $('#maingraph').highcharts({
+                chart: {
+                    type: 'line',
+                    events: {
+                        load: function() {
+                            var series = this.series[0];
+                            console.log(series)
+                            console.log(this)
+                            console.log(series.data);
+                            setInterval(function() {
+                                $.getJSON("jsondata/frequency.json", function(data) {
+                                     var vdata = data.freq;
+                                     console.log('Received Data: '+vdata);
+                                     console.log('Series: '+series.data);
+                                    //extract more data
+                                    });
+                                if (vdata.length > series.data.length)
+                                {
+                                    var i = series.data.length;
+                                    for (; i < vdata.length; i++)
+                                    {
+                                        series.addPoint(vdata[i],true,false,true);
+                                        console.log('Adding point: '+vdata[i])
+                                    }
+                                }
+                            } ,10000);
+                        },
+                    }
+                },
+                title: {
+                    text: 'Frequency 10 seconds average'
+                },
+                xAxis: {
+                    type:'datetime'
+                },
+                yAxis: {
+                    title: {
+                        text: 'Frequency / Hz',
+                    },
+                    plotBands: [{
+                            color: '#80B192',
+                            from: 49.8,
+                            to: 50.2}]
+                },
+                series: [{
+                    name: 'frequency',
+                    data: vdata,
+                    pointInterval : 10000 //10 seconds
+                }]
+            });
+    });
+});
+
+</script>
+</body>
+</html>

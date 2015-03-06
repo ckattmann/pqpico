@@ -189,7 +189,6 @@ class Picoscope4000:
 
         # If fake Data is enabled, ignore everything:
         if self.fakeDataMode:
-            pass
             return 0
     
         # Open Picoscope:
@@ -219,7 +218,6 @@ class Picoscope4000:
             print(' No oscilloscope found')
             self.fakeDataMode = True
             print('\nNo Picoscope found, switching to fake data mode\n')
-        print(self.handle)
 
         return self.handle
 
@@ -390,7 +388,7 @@ class Picoscope4000:
             autoStop=0
             maxPreTriggerSamples=None
             maxPostTriggerSamples=None
-            print(' Streaming Sample Interval before: '+str(self.streaming_sample_interval.value))
+            #print(' Streaming Sample Interval before: '+str(self.streaming_sample_interval.value))
             res = self.lib.ps4000aRunStreaming(self.handle,
                     ctypes.byref(self.streaming_sample_interval),
                     self.streaming_sample_interval_unit,
