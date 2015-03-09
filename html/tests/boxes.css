@@ -54,23 +54,24 @@ a:hover {
   width: 30%;
   height: 40%;
 }
-.boxStatus {
+.statusBox {
   clear: left;
   background-color: white;
 }
 
-.box2 {
+.voltBox {
   background-color: yellow;
 }
 
-.box3 {
+.freqBox {
   background-color: orangered;
 }
-.box1, .box2, .box3 {
 
+.harmBox {
+  background-color: violet;
 }
 
-.mainchart {
+.bigbox {
   display: inline-block;
   clear: right;
   width: 100%;
