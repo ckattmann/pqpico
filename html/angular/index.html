@@ -56,10 +56,10 @@
                     type: 'line',
                     events: {
                         load: function() {
-                            var updatedData = this.series[0];
+                            var series = this.series[0];
                             setInterval(function() {    $.getJSON("jsondata/frequency.json", function(data) {
                                                         vdata = data.freq; });
-                                                        if (vdata.length > updatedData.data.length)
+                                                        if (vdata.length > series.data.length)
                                                         {   var i = series.data.length;
                                                             for (; i < vdata.length; i++)  { series.addPoint(vdata[i],true,false,true); } } } ,1000);
                         },

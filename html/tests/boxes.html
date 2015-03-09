@@ -1,0 +1,160 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel='stylesheet' type='text/css' href='boxes.css'></link>
+</head>
+
+<body>
+<div id='header'>
+    <ul>
+        <li class='menupoint'><a class='menulink linkStatus' href="" onclick="return false;">Status</a></li>
+        <li class='menupoint'><a class='menulink linkFrequency' href="" onclick="return false;">Frequenz</a></li>
+        <li class='menupoint'><a class='menulink linkVoltage' href="" onclick="return false;">Spannung</a></li>
+        <li class='menupoint'><a class='menulink linkHarmonics' href="" onclick="return false;">Harmonische</a></li>
+        <li class='menupoint'><a class='menulink linkFlicker' href="" onclick="return false;">Flicker</a></li>
+    </ul>
+</div>
+
+<div class='container'>
+    <div class='box mainchart'>
+        
+    </div>
+    <div class='box smallbox boxStatus freq'>
+        <div class=statusOK>Messung aktiv</div>
+    </div>
+    <div class='box smallbox box2 volt'>
+        Box2
+    </div>
+    <div class='box smallbox box3 harm'>
+        Box3
+    </div>
+</div>
+
+<!-- Footer Bar -->
+<div class="graybar bottom">
+    <ul id="footer">
+        <li><a href="http://github.com/mischele">MB</a> |
+            <a href="http://github.com/kanell">MG</a> |
+            <a href="http://github.com/kipfer">CK</a> |
+            <a href="http://www.uni-stuttgart.de/ieh">IEH</a></li>
+    </ul>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script>
+jQuery(document).ready(function($) {
+
+        $('.mainchart').highcharts({
+            series: [{data: [1,2,3] }]
+            });
+
+        console.log(mainChart);
+        var mainChart = $('.mainchart').highcharts();
+        mainChart.series[0].addPoint(34);
+        
+        function clearView() {
+            $('.menulink').removeClass('selected');
+            $('.smallbox').hide();
+        };
+
+        $('.linkStatus').click(function() {
+            clearView();
+            $('.linkStatus').addClass('selected');
+            $('.boxStatus').fadeIn(200);
+        });
+        $('.linkFrequency').click(function() {
+            clearView();
+            $('.linkFrequency').addClass('selected');
+            $('.box2').fadeIn(200);
+            var updatedData = [];
+            console.log('Calling JSON');
+
+            $.getJSON('jsondata/frequency.json', function(data) {
+                console.log(data);
+                $('.mainchart').highcharts({
+                    chart: {
+                        type: 'line',
+                        events: {
+                            load: function() {
+                                setInterval(function() {
+                                    $.getJSON('jsondata/frequency.json', function(data) {
+                                        var mainChart = $('.mainchart').highcharts();
+                                        var mainChartDataLength = $('.mainchart').highcharts().series[0].yData.length;
+                                      
+                                    if (updatedData.length > mainChartDataLength)
+                                    {
+                                        var i = mainChartDataLength;
+                                        for (; i<updatedData.length; i++)
+                                        {
+                                            mainChart.series[0].addPoint(updatedData[i],true)
+                                        }
+                                    }
+                                    });  
+                                },10000);
+                            }
+                        }
+                    }
+                });
+            });
+        });
+        $('.linkVoltage').click(function() {
+            clearView();
+            var maingraph = $('.mainchart').highcharts();
+            maingraph.series[0].remove();
+            maingraph.addSeries({name: 'Voltage', data: [] });
+            $('.linkVoltage').addClass('selected');
+            $('.box3').fadeIn(200);
+            var freqdata;
+            var b=1;
+            function updateMainGraph() {
+                $.getJSON('jsondata/frequency.json', function(data) {
+                    console.log(data);
+                    data = data.freq;
+                    var mainchart = $('.mainchart').highcharts();
+                    freqdata = mainchart.series[0].yData;
+                    console.log(freqdata);
+                    console.log(data);
+                    if (data.length > freqdata.length)
+                    {
+                        var i = freqdata.length;
+                        for (; i<data.length; i++)
+                        {
+                            mainChart.series[0].addPoint(data[i],true)
+                        }
+                    }
+                    
+
+                });
+                setTimeout(updateMainGraph,1000);     
+            }
+            updateMainGraph();
+
+            
+        });
+        $('.linkHarmonics').click(function() {
+            clearView();
+            $('.linkHarmonics').addClass('selected');
+            $('.box3').fadeIn(200);
+            var mainchart = $('.mainchart').highcharts();
+            mainchart.series[0].setData([6,7,84,6,76,7,34,45,47,56,4,76,7,3,4,5,34,3,3,23]);
+            mainchart.setTitle({text: 'Harmonische 1 - 25'});
+        });
+        $('.linkFlicker').click(function() {
+            clearView();
+            $('.smallbox').hide();
+            $('.box3').fadeIn(200);
+            var mainchart = $('.mainchart').highcharts();
+            mainchart.series[0].setData([6,7,84,6,76,447,34,45,447,56,4,276,7,3,4,5,34,3,23,23]);
+            mainchart.setTitle({text: 'Flicker'});
+        });
+
+
+
+});
+
+</script>
+
+</body>
+</html>
