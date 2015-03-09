@@ -19,15 +19,18 @@ streaming_sample_interval = parameters['streaming_sample_interval']
 
 min_snippet_length = streaming_sample_interval/2
 
-data = ring_array_global_data(size=2000000)
+data = ring_array_global_data(size=3000000)
 data_10seconds = ring_array(size=(20*streaming_sample_interval)) 
 data_10min = ring_array(size=5000000)
 rms_half_period = np.array(np.zeros(20))
 snippet_array = ring_array(size=100000)
+
+freq_10seconds_list = []
 rms_10periods_list = []
 thd_10periods_list = []
 harmonics_10periods_list = []
 pst_list = []
+snippet_size_list = []
 
 first_value = 0
 is_first_iteration = 1
@@ -72,26 +75,28 @@ dataLogger.addHandler(shd)
 # Initialize JSON files
 # =====================
 
-freqFilePath = os.path.join('html','jsondata','frequency.json')
-if not os.path.isfile(freqFilePath):
-    print('No frequency.json found, creating...')
-    with open(freqFilePath,'wb') as freqFile:
-        freqDataDict = {'freq':[]}
-        freqDataJson = json.dumps(freqDataDict)
-        print(str(freqDataJson))
-        freqFile.write(freqDataJson)
 
+for jsonfile in ['voltage','frequency','waveform']:
+    filepath = os.path.join('html','tests','jsondata',str(jsonfile)+'.json')
+    if not os.path.isfile(filepath):
+        print('Creating empty JSON file '+str(jsonfile))
+        with open(filepath,'wb') as f:
+            f.write(json.dumps({'values':[]}))
 
 # Main PQ Measurement and Calculation loop
 # ========================================
 
-try:    
+try:
     while True:
         while data.size < min_snippet_length:
             
             snippet = pico.get_queue_data()
 
             if snippet is not None:
+                # Write snippet size to JSON
+                snippet_size_list.append(snippet.size)
+                pq.writeJSON(snippet_size_list,1000,'snippetsize.json')
+
                 snippet_array.attach_to_back(np.array([snippet.size]))
                 data.attach_to_back(snippet)
                 data_10seconds.attach_to_back(snippet)
@@ -128,6 +133,15 @@ try:
         data_10periods = data.cut_off_front2(zero_indices[20], 20)
         queueLogger.debug('Length of current data: '+str(data.size))
 
+        # Write last waveform to JSON
+        waveform = data_10periods[zero_indices[18]:zero_indices[20]]
+        if (waveform[200] < 0):
+            waveform = data_10periods[zero_indices[17]:zero_indices[19]]
+        waveform = pq.moving_average2(waveform, 25)
+        waveform = waveform[0::20]
+        pq.writeJSON(waveform,2000,'waveform.json')
+
+
         # Calculate and store RMS values of half periods 
         # ==============================================
         for i in xrange(20):    
@@ -147,7 +161,11 @@ try:
         # Calculate and store RMS values of 10 periods
         # ============================================
         rms_10periods = pq.calculate_rms(data_10periods)
+
+        # Write last values to voltage.json
         rms_10periods_list.append(rms_10periods)
+        pq.writeJSON(rms_10periods_list, 1000, 'voltage.json')
+
         dataLogger.debug('RMS voltage of 10 periods: '+str(rms_10periods))
 
         # Calculate and store harmonics and THD values of 10 periods
@@ -157,6 +175,10 @@ try:
         harmonics_10periods_list.append(harmonics_10periods)
         thd_10periods_list.append(thd_10periods)
         dataLogger.debug('THD of 10 periods: '+str(thd_10periods))
+
+        # Write current harmonics to JSON
+        pq.writeJSON([h / harmonics_10periods[0] for h in harmonics_10periods[1:]],40,'harmonics.json')
+        pq.writeJSON(thd_10periods_list,100,'thd.json')
 
 
         # Calculate frequency of 10 seconds
@@ -170,23 +192,11 @@ try:
                 plt.grid()
                 plt.show()
             frequency = pq.calculate_Frequency(frequency_data, streaming_sample_interval)
+
+            # Write last values to json file
+            freq_10seconds_list.append(frequency)
+            pq.writeJSON(freq_10seconds_list, 200, 'frequency.json')
             dataLogger.info(pq.test_frequency(frequency))
-
-            # Enter into frequency.json
-            with open(os.path.join('html','jsondata','frequency.json'),'rb') as f:
-                rawJson = f.read()
-
-            print(rawJson)
-            jsonDict = json.loads(rawJson)
-            freqData = jsonDict['freq']
-            freqData.append(frequency)
-            print(str(freqData))
-            jsonDict['freq'] = freqData
-            rawJson = json.dumps(jsonDict)
-
-            with open(os.path.join('html','jsondata','frequency.json'),'wb') as f:
-                f.write(rawJson)
-
 
         # Prepare for 10 min Measurement
         # ==============================

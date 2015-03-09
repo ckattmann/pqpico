@@ -9,7 +9,8 @@ Created on Wed Feb  4 18:02:43 2015
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.signal as signal
-import sys
+import sys, os
+import json
 
 ##########------------------------Konstanten-------------------------##########
 
@@ -389,6 +390,13 @@ def count_up_values(values_list):
     new_value = np.sqrt(np.sum(np.power(values_list,2),axis=0)/len(values_list))
     return new_value
 
+# writes the last n values of array into the given json file
+def writeJSON(array, size, filename):
+    valuesdict = {'values': [round(x,4) for x in array[-size:]]}
+    with open(os.path.join('html','tests','jsondata',filename),'wb') as f:
+        f.write(json.dumps(valuesdict))
+
+
 # Plot functions
 # ==============
 
@@ -419,7 +427,7 @@ class plotting_frequency():
         plt.ion()
         plt.draw()
 
-# Compare with Standart
+# Compare with Standard
 # =====================
 
 def test_thd(thd):
