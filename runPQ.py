@@ -169,14 +169,27 @@ try:
         # Calculate and store harmonics and THD values of 10 periods
         # ==========================================================
         harmonics_10periods = pq.calculate_harmonics_voltage(data_10periods,streaming_sample_interval)
-        thd_10periods = pq.calculate_THD(harmonics_10periods, streaming_sample_interval)
         harmonics_10periods_list.append(harmonics_10periods)
+
+        thd_10periods = pq.calculate_THD(harmonics_10periods, streaming_sample_interval)
         thd_10periods_list.append(thd_10periods)
+
         dataLogger.debug('THD of 10 periods: '+str(thd_10periods))
 
         # Write current harmonics to JSON
         pq.writeJSON([h / harmonics_10periods[0] for h in harmonics_10periods[1:]],40,'harmonics.json')
         pq.writeJSON(thd_10periods_list,100,'thd.json')
+
+        # Write JSON file about current situation
+        infoDict = {'samplingrate':streaming_sample_interval, 
+                    'ram':psutil.virtual_memory()[2],
+                    'cpu':psutil.cpu_percent(),
+                    'disk':psutil.disk_usage('/')[3],
+                    'currentFreq': frequency_10periods,
+                    'currentVoltage': rms_10periods,
+                    'currentTHD': thd_10periods}
+        with open(os.path.join('html','tests','jsondata','info.json'),'wb') as f:
+            f.write(json.dumps(infoDict))
 
 
         # Calculate frequency of 10 seconds
