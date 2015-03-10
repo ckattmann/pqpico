@@ -30,6 +30,7 @@ li.menupoint {
   font-family: monospace;
   font-size: 16; 
 }
+
 a {
   color: white;
   text-decoration: none; 
@@ -61,13 +62,30 @@ a:hover {
   text-align: left;
   font-size: 30;
 }
+.statusrow {
+  text-align: right;
+}
 .statusBox {
   clear: left;
-  background-color: #b8cae3;
+  background-color: #5d92c6;
+}
+.table {
+  padding: 10px;
+}
+tr td{
+  border-bottom: 1px solid gray;
+  border-collapse: collapse;
+  border-left: 0;
+  border-right: 0;
+}
+
+.statusvalue {
+  text-align: right;
+  padding: 5px;
 }
 
 .voltBox {
-  background-color: #ecdec9;
+  background-color: #92b6da;
 }
 
 .lower {
@@ -76,7 +94,7 @@ a:hover {
 }
 
 .freqBox {
-  background-color: #d2f0d4;
+  background-color: #77a4d0;
 }
 
 .mainValue {
@@ -84,14 +102,16 @@ a:hover {
   font-size: 50;
   letter-spacing: 5;
   padding: 5px;
-  border: 1px solid black;
 }
 
 .harmBox {
-  background-color: #e8c0e4;
+  background-color: #adc8e4;
 }
 .flickerBox {
-  background-color: #EFA2A2;
+  background-color: #c8dbed;
+}
+.en50160Box {
+  background-color: #e3edf6;
 }
 
 .bigbox {
@@ -99,6 +119,7 @@ a:hover {
   clear: right;
   width: 100%;
   height: 50%;
+  padding-bottom: 50px;
 }
 
 .statusOK {

@@ -39,20 +39,42 @@
     <div class='box smallbox statusBox'>
         Status
         <div class='mainValue statusOK'>Messung aktiv</div>
+        <table cellspacing='0' class='table'>
+            <tr>
+                <td>Samplerate</td>
+                <td class='statusrow'><span class='statusvalue samplerate'>unknown</span>S/s</td>
+            </tr>
+            <tr>
+                <td>CPU</td>
+                <td class='statusrow'><span class='statusvalue cpuLoad'>unknown</span> %</td>
+            </tr>
+            <tr>
+                <td>RAM</td>
+                <td class='statusrow'><span class='statusvalue ramLoad'>unknown</span> %</td>
+            </tr>
+            <tr>
+                <td>Festplatte</td>
+                <td class='statusrow'><span class='statusvalue discLoad'>unknown</span> %</td>
+            </tr>
+        </table>
     </div>
     <div class='box smallbox freqBox'>
         Frequenz
-        <div class='mainValue frequency'>50,00 Hz</div>
+        <div class='mainValue'><span class='frequency'>50,00</span> Hz</div>
     </div>
     <div class='box smallbox voltBox'>
         Spannung
-        <div class='mainValue voltage'>230,00 V<span class=lower>RMS</span></div>
+        <div class='mainValue'><span class='voltage'>230,00</span> V<span class=lower>RMS</span></div>
     </div>
     <div class='box smallbox harmBox'>
         Harmonische
+        <div class='mainValue'><span class='thd'>2,00</span> %<span class=lower>THD</span></div>
     </div>
     <div class='box smallbox flickerBox'>
         Flicker
+    </div>
+    <div class='box smallbox en50160Box'>
+        EN 50160
     </div>
     <div class='box smallbox waveBox'>
         Waveform
@@ -65,9 +87,9 @@
 <!-- Footer Bar -->
 <div class="graybar bottom">
     <ul id="footer">
-        <li><a href="http://github.com/mischele">MB</a> |
-            <a href="http://github.com/kanell">MG</a> |
-            <a href="http://github.com/kipfer">CK</a> |
+        <li><a href="http://github.com/mischele/pqpico">MB</a> |
+            <a href="http://github.com/kanell/pqpico">MG</a> |
+            <a href="http://github.com/kipfer/pqpico">CK</a> |
             <a href="http://www.uni-stuttgart.de/ieh">IEH</a></li>
     </ul>
 </div>
@@ -78,30 +100,33 @@
 jQuery(document).ready(function($) {
         // Initialize Graphs
         $('.snippetsizeBox').highcharts({
-            chart: {animation: false},
+            chart: {animation: false,zoomType: 'x'},
             plotOptions: { series: {color: '#FF3005', marker: {enabled: false}}},
             title: {text: 'Microseconds for Computation'},
             subtitle: {text: '10 Perioden-Mittelwerte'},
+            yAxis: {min:0},
             legend: {enabled: false},
             series: [{data: [] }],
             tooltip: {enabled: false}
             }).hide();
 
         $('.voltageGraph').highcharts({
-            chart: {animation: false},
+            chart: {animation: false, zoomType: 'y'},
             plotOptions: { series: {color: '#FF3005', marker: {enabled: false}}},
             title: {text: 'Spannung / V'},
             subtitle: {text: '10 Perioden-Mittelwerte'},
+            yAxis: {min:220, max:240},
             legend: {enabled: false},
             series: [{data: [] }],
             tooltip: {enabled: false}
             }).hide();
 
         $('.frequencyGraph').highcharts({
-            chart: {animation: false},
+            chart: {animation: false, zoomType: 'y'},
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
             title: {text: 'Frequenz / Hz'},
             subtitle: {text: '10 Sekunden-Mittelwerte'},
+            yAxis: {min:49.5, max:50.5},
             legend: {enabled: false},
             series: [{data: [] }]
             }).hide();
@@ -117,7 +142,7 @@ jQuery(document).ready(function($) {
             }).hide();
 
         $('.waveBox').highcharts({
-            chart: {animation: true},
+            chart: {animation: true, zoomType: 'xy'},
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
             title: {text: 'Wellenform'},
             legend: {enabled: false},
@@ -126,9 +151,10 @@ jQuery(document).ready(function($) {
             }).hide();
 
         $('.thdBox').highcharts({
-            chart: {animation: false},
+            chart: {animation: false, zoomType: 'y'},
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
             title: {text: 'Total Harmonic Distortion'},
+            yAxis: {min:0, max:8},
             legend: {enabled: false},
             series: [{data: [] }],
             tooltip: {enabled: false}
@@ -155,6 +181,7 @@ jQuery(document).ready(function($) {
             $('.voltBox').show();
             $('.harmBox').show();
             $('.flickerBox').show();
+            $('.en50160Box').show();
         });
 
         $('.linkStatus').click(function() {
@@ -220,6 +247,21 @@ jQuery(document).ready(function($) {
             }
             updateGraphRepeater();
         }
+
+        function updateInfo() {
+            $.getJSON('jsondata/info.json', function(data) {
+                $('.frequency').text(data.currentFreq);
+                $('.voltage').text(data.currentVoltage);
+                $('.thd').text(data.currentTHD);
+                $('.samplerate').text(data.samplingrate);
+                $('.cpuLoad').text(data.cpu);
+                $('.ramLoad').text(data.ram);
+                $('.discLoad').text(data.disk);
+
+            });
+            setTimeout(updateInfo,1000);
+        };
+        updateInfo();
 
 });
 
