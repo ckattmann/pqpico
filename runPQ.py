@@ -23,7 +23,6 @@ data = ring_array_global_data(size=3000000)
 data_10seconds = ring_array(size=(20*streaming_sample_interval)) 
 data_10min = ring_array(size=5000000)
 rms_half_period = np.array(np.zeros(20))
-snippet_array = ring_array(size=100000)
 
 freq_10seconds_list = []
 rms_10periods_list = []
@@ -97,7 +96,6 @@ try:
                 snippet_size_list.append(snippet.size)
                 pq.writeJSON(snippet_size_list,1000,'snippetsize.json')
 
-                snippet_array.attach_to_back(np.array([snippet.size]))
                 data.attach_to_back(snippet)
                 data_10seconds.attach_to_back(snippet)
                 
@@ -233,13 +231,6 @@ try:
             Pst = pq.calculate_Pst(flicker_data)
             pst_list.append(Pst)
             dataLogger.info('Pst: '+str(Pst))
-            if False:
-                plt.plot(snippet_array.cut_off_front2(snippet_array.size), '.')
-                plt.grid(True)
-                plt.ylabel('Messpunkte pro Snippet')
-                plt.xlabel('Anzahl der eingelesenen Snippets in 10 min')
-                plt.title('Snippetlaenge:')
-                plt.show()
 
 
         # Calculate flicker of 2 hours    
