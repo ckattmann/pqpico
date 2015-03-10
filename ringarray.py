@@ -70,7 +70,19 @@ class ring_array_global_data():
             self.zero_indices[:self.size_zero_indices] = pq.detect_zero_crossings(self.ringBuffer[:self.size])
         except AttributeError:
             print('ringBuffer array is too small, please increase the size of ringBuffer')
+
+
+    def attach_to_front2(self, data_to_attach):
+        self.ringBuffer[data_to_attach.size : data_to_attach.size + self.size] = self.ringBuffer[:self.size]
+        self.ringBuffer[:data_to_attach.size] = data_to_attach
+        self.size += data_to_attach.size
+
+        new_zero_indices = pq.detect_zero_crossings(data_to_attach)
         
+        self.zero_indices[new_zero_indices.size : new_zero_indices.size + self.size_zero_indices] = self.zero_indices[:self.size_zero_indices]
+        self.zero_indices[:new_zero_indices.size] = new_zero_indices
+        self.size_zero_indices += new_zero_indices.size
+
 class ring_array():
     def __init__(self, size = 2000000):
         self.ringBuffer = np.array(np.zeros(size))
