@@ -5,7 +5,7 @@ import time
 class ring_array_global_data():
     def __init__(self, size = 2000000):
         self.ringBuffer = np.array(np.zeros(size))
-        self.zero_indices = np.array(np.zeros(200), dtype=np.int32)
+        self.zero_indices = np.array(np.zeros(2000), dtype=np.int32)
         self.size = 0
         self.size_zero_indices = 0
 
@@ -16,12 +16,18 @@ class ring_array_global_data():
         return self.ringBuffer[index]
     
     def attach_to_back(self, data_to_attach):
-        try:
-            zero_indices_to_attach = pq.detect_zero_crossings(data_to_attach)            
-            self.zero_indices[self.size_zero_indices:self.size_zero_indices + zero_indices_to_attach.size] = zero_indices_to_attach + self.size            
-            self.ringBuffer[self.size:self.size + data_to_attach.size] = data_to_attach
-        except AttributeError:
-            print('data_to_attach has no .size attribute, should be of type numpy.ndarray')
+        zero_indices_to_attach = np.array(pq.detect_zero_crossings(data_to_attach))
+
+        print('----------------------------------')
+        print('zero_indices : '+str(self.zero_indices))
+        print('size_zero_indices : '+str(self.size_zero_indices))
+        print('zero_indices_to_attach.size : '+str(zero_indices_to_attach.size))
+        print('zero_indices_to_attach'+str(zero_indices_to_attach))
+        print('self.size : '+str(self.size))
+
+        self.zero_indices[self.size_zero_indices:self.size_zero_indices + zero_indices_to_attach.size] = zero_indices_to_attach + self.size
+
+        self.ringBuffer[self.size:self.size + data_to_attach.size] = data_to_attach
         self.size += data_to_attach.size
         self.size_zero_indices += zero_indices_to_attach.size
 
@@ -60,8 +66,8 @@ class ring_array_global_data():
             self.ringBuffer[data_to_attach.size:] = self.ringBuffer[:-data_to_attach.size]
             self.ringBuffer[:data_to_attach.size] = data_to_attach      
             self.size += data_to_attach.size
-            self.zero_indices = pq.detect_zero_crossings(self.ringBuffer[:self.size])
-            self.size_zero_indices = self.zero_indices.size
+            self.size_zero_indices = pq.detect_zero_crossings(self.ringBuffer[:self.size]).size
+            self.zero_indices[:self.size_zero_indices] = pq.detect_zero_crossings(self.ringBuffer[:self.size])
         except AttributeError:
             print('ringBuffer array is too small, please increase the size of ringBuffer')
         

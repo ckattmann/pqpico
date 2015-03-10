@@ -206,9 +206,16 @@ def calculate_THD(harmonics_10periods, SAMPLING_RATE):
 def convert_data_to_lower_fs(data, SAMPLING_RATE, first_value):
     step = int(SAMPLING_RATE/4000)
     delta = np.arange(first_value,data.size,step)
-    data_flicker =data[delta]
+    data_flicker = data[delta]
     first_value = step - data[delta[-1]:].size
     return data_flicker, first_value
+
+def convert_data_to_lower_fs2(data, SAMPLING_RATE, restdata):
+    reduction_rate = int(SAMPLING_RATE / 4000)
+    data = np.append(data,restdata)
+    reduced_data = data[::reduction_rate]
+    restdata = data[data.size % reduction_rate]
+    return reduced_data, restdata
 
 def calculate_Pst(data):    
     show_time_signals = 0           #Aktivierung des Plots der Zeitsignale im Flickermeter
@@ -392,7 +399,7 @@ def count_up_values(values_list):
 
 # writes the last n values of array into the given json file
 def writeJSON(array, size, filename):
-    valuesdict = {'values': [round(x,4) for x in array[-size:]]}
+    valuesdict = {'values': [round(x,3) for x in array[-size:]]}
     with open(os.path.join('html','tests','jsondata',filename),'wb') as f:
         f.write(json.dumps(valuesdict))
 

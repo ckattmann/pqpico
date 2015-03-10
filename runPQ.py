@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from ringarray import ring_array, ring_array_global_data
 import logging
 import json
+import psutil
 
 PLOTTING = 0
 
@@ -32,6 +33,7 @@ pst_list = []
 snippet_size_list = []
 
 first_value = 0
+restdata = []
 is_first_iteration = 1
 #time.sleep(0.5) # Activate when first data is None and first iterations runs with None data, should be fixed
 
@@ -39,34 +41,26 @@ is_first_iteration = 1
 # ==================
 
 queueLogger = logging.getLogger('queueLogger')
-queueLogger.setLevel(logging.DEBUG)
-
+queueLogger.setLevel(logging.INFO)
 fhq = logging.FileHandler('Logs/queueLog.log')
-fhq.setLevel(logging.DEBUG)
-
+fhq.setLevel(logging.INFO)
 shq = logging.StreamHandler()
-shq.setLevel(logging.INFO)
-
+shq.setLevel(logging.WARNING)
 formatterq = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
 fhq.setFormatter(formatterq)
 shq.setFormatter(formatterq)
-
 queueLogger.addHandler(fhq)
 queueLogger.addHandler(shq)
 
 dataLogger = logging.getLogger('dataLogger')
 dataLogger.setLevel(logging.DEBUG)
-
 fhd = logging.FileHandler('Logs/dataLog.log')
-fhd.setLevel(logging.DEBUG)
-
+fhd.setLevel(logging.ERROR)
 shd = logging.StreamHandler()
-shd.setLevel(logging.INFO)
-
+shd.setLevel(logging.WARNING)
 formatterd = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
 fhd.setFormatter(formatterd)
 shd.setFormatter(formatterd)
-
 dataLogger.addHandler(fhd)
 dataLogger.addHandler(shd)
 
@@ -101,7 +95,7 @@ try:
                 
                 # Prepare data for Flicker calculation
                 # ====================================
-                data_for_10min, first_value = pq.convert_data_to_lower_fs(snippet, streaming_sample_interval+1, first_value)       
+                data_for_10min, restdata = pq.convert_data_to_lower_fs2(snippet, streaming_sample_interval+1, restdata)
                 data_10min.attach_to_back(data_for_10min)
 
                 queueLogger.debug('Length of snippet:      +'+str(snippet.size))
@@ -109,7 +103,7 @@ try:
                     
             else:
                 pass    
-        
+       
         # Cut off everything before the first zero crossing:
         # ==================================================           
         if is_first_iteration:
@@ -128,11 +122,15 @@ try:
             dataLogger.error('Number of zero crossings in '+str(data.get_data_view().size)+': '+str(zero_indices.size))
         dataLogger.debug('Cutting off :'+str(zero_indices[20]))
         queueLogger.debug('Cutting off:            -'+str(zero_indices[20]))        
+
         data_10periods = data.cut_off_front2(zero_indices[20], 20)
+
         queueLogger.debug('Length of current data: '+str(data.size))
 
         # Write last waveform to JSON
         waveform = data_10periods[zero_indices[18]:zero_indices[20]]
+        print('zero_indices  : '+str(zero_indices))
+        print('data_10periods: '+str(data_10periods))
         if (waveform[200] < 0):
             waveform = data_10periods[zero_indices[17]:zero_indices[19]]
         waveform = pq.moving_average2(waveform, 25)
@@ -177,17 +175,17 @@ try:
         dataLogger.debug('THD of 10 periods: '+str(thd_10periods))
 
         # Write current harmonics to JSON
-        pq.writeJSON([h / harmonics_10periods[0] for h in harmonics_10periods[1:]],40,'harmonics.json')
+        pq.writeJSON([h / harmonics_10periods[0] * 100 for h in harmonics_10periods[1:]],40,'harmonics.json')
         pq.writeJSON(thd_10periods_list,100,'thd.json')
 
         # Write JSON file about current situation
         infoDict = {'samplingrate':streaming_sample_interval, 
-                    'ram':psutil.virtual_memory()[2],
-                    'cpu':psutil.cpu_percent(),
-                    'disk':psutil.disk_usage('/')[3],
-                    'currentFreq': frequency_10periods,
-                    'currentVoltage': rms_10periods,
-                    'currentTHD': thd_10periods}
+                    'ram':round(psutil.virtual_memory()[2],1),
+                    'cpu':round(psutil.cpu_percent(),1),
+                    'disk':round(psutil.disk_usage('/')[3],1),
+                    'currentFreq': round(frequency_10periods,3),
+                    'currentVoltage': round(rms_10periods,2),
+                    'currentTHD': round(thd_10periods,2)}
         with open(os.path.join('html','tests','jsondata','info.json'),'wb') as f:
             f.write(json.dumps(infoDict))
 
@@ -251,7 +249,11 @@ try:
         if (len(pst_list)==12):
             Plt = pq.calculate_Plt(pst_list)
             dataLogger.info(pq.test_plt(Plt))
-           
+
+#except KeyboardInterrupt:
+    #print('Aborting...')
+
+
 finally:
     pico.close_unit()
 
