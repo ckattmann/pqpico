@@ -438,7 +438,7 @@ def count_up_values(values_list):
 # writes the last n values of array into the given json file
 def writeJSON(array, size, filename):
     valuesdict = {'values': [round(x,3) for x in array[-size:]]}
-    with open(os.path.join('html','tests','jsondata',filename),'wb') as f:
+    with open(os.path.join('html','jsondata',filename),'wb') as f:
         f.write(json.dumps(valuesdict))
 
 

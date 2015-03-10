@@ -65,17 +65,6 @@ dataLogger.addHandler(fhd)
 dataLogger.addHandler(shd)
 
 
-# Initialize JSON files
-# =====================
-
-
-for jsonfile in ['voltage','frequency','waveform']:
-    filepath = os.path.join('html','tests','jsondata',str(jsonfile)+'.json')
-    if not os.path.isfile(filepath):
-        print('Creating empty JSON file '+str(jsonfile))
-        with open(filepath,'wb') as f:
-            f.write(json.dumps({'values':[]}))
-
 # Main PQ Measurement and Calculation loop
 # ========================================
 
@@ -186,7 +175,7 @@ try:
                     'currentFreq': round(frequency_10periods,3),
                     'currentVoltage': round(rms_10periods,2),
                     'currentTHD': round(thd_10periods,2)}
-        with open(os.path.join('html','tests','jsondata','info.json'),'wb') as f:
+        with open(os.path.join('html','jsondata','info.json'),'wb') as f:
             f.write(json.dumps(infoDict))
 
 
