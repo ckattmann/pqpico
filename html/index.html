@@ -1,107 +1,271 @@
-<!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="UTF-8">
-<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-<script src="http://code.highcharts.com/highcharts.js"></script>
-
-<link rel="stylesheet" type="text/css" href="main.css">
-
+    <meta charset="UTF-8">
+    <link rel='stylesheet' type='text/css' href='boxes.css'></link>
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400' rel='stylesheet' type='text/css'> 
 </head>
+
 <body>
-<!-- Menubar -->
-<div class="graybar">
-    <ul id="header">
-        <li><a id="status" class=menuitem href="status.html" target="maingraph">Status</a></li>
-        <li><a id="frequency" class=menuitem href="frequency.html" target="maingraph">Frequenz</a></li>
-        <li><a id="voltage" class=menuitem href="voltage.html" target="maingraph">Spannung</a></li>
-        <li><a id="harmonics" class=menuitem href="harmonics.html" target="maingraph">Harmonische</a></li>
-        <li><a id="flicker" class=menuitem href="flicker.html" target="maingraph">Flicker</a></li>
+<div id='header'>
+    <ul>
+        <li class='menupoint'><a class='menulink linkOverview' href="" onclick="return false;">Uebersicht</a></li>
+        <li class='menupoint'><a class='menulink linkStatus' href="" onclick="return false;">Status</a></li>
+        <li class='menupoint'><a class='menulink linkFrequency' href="" onclick="return false;">Frequenz</a></li>
+        <li class='menupoint'><a class='menulink linkVoltage' href="" onclick="return false;">Spannung</a></li>
+        <li class='menupoint'><a class='menulink linkHarmonics' href="" onclick="return false;">Harmonische</a></li>
+        <li class='menupoint'><a class='menulink linkFlicker' href="" onclick="return false;">Flicker</a></li>
     </ul>
 </div>
 
-<!-- First Graph, to be deleted -->
-<div id="container"></div>
+<div class='container'>
+    <!-- Big Boxes for main graphs -->
+    <div class='box bigbox voltageGraph'>
+        
+    </div>
+    <div class='box bigbox frequencyGraph'>
+        
+    </div>
+    <div class='box bigbox harmonicsGraph'>
+        
+    </div>
+    <div class='box bigbox flickerGraph'>
+        
+    </div>
+    <!-- Smaller info boxes below main graph -->
+    <div class='box smallbox snippetsizeBox'>
 
-<!-- Main iframe for individual displays -->
-<div id="maingraphdiv">
-    <iframe name='maingraph' width=90% height=401px scrolling="no" frameborder=0 seamless></iframe>
+    </div>
+    <div class='box smallbox statusBox'>
+        Status
+        <div class='mainValue statusOK'>Messung aktiv</div>
+        <table cellspacing='0' class='table'>
+            <tr>
+                <td>Samplerate</td>
+                <td class='statusrow'><span class='statusvalue samplerate'>unknown</span>S/s</td>
+            </tr>
+            <tr>
+                <td>CPU</td>
+                <td class='statusrow'><span class='statusvalue cpuLoad'>unknown</span> %</td>
+            </tr>
+            <tr>
+                <td>RAM</td>
+                <td class='statusrow'><span class='statusvalue ramLoad'>unknown</span> %</td>
+            </tr>
+            <tr>
+                <td>Festplatte</td>
+                <td class='statusrow'><span class='statusvalue discLoad'>unknown</span> %</td>
+            </tr>
+        </table>
+    </div>
+    <div class='box smallbox freqBox'>
+        Frequenz
+        <div class='mainValue'><span class='frequency'>50,00</span> Hz</div>
+    </div>
+    <div class='box smallbox voltBox'>
+        Spannung
+        <div class='mainValue'><span class='voltage'>230,00</span> V<span class=lower>RMS</span></div>
+    </div>
+    <div class='box smallbox harmBox'>
+        Harmonische
+        <div class='mainValue'><span class='thd'>2,00</span> %<span class=lower>THD</span></div>
+    </div>
+    <div class='box smallbox flickerBox'>
+        Flicker
+    </div>
+    <div class='box smallbox en50160Box'>
+        EN 50160
+    </div>
+    <div class='box smallbox waveBox'>
+        Waveform
+    </div>
+    <div class='box smallbox thdBox'>
+        THD
+    </div>
 </div>
 
 <!-- Footer Bar -->
 <div class="graybar bottom">
     <ul id="footer">
-        <li><a href="mailto:beltle@ieh.uni-stuttgart.de">MB</a> |
-            <a href="http://github.com/kanell">MG</a> |
-            <a href="http://github.com/kipfer">CK</a> |
+        <li><a href="http://github.com/mischele/pqpico">MB</a> |
+            <a href="http://github.com/kanell/pqpico">MG</a> |
+            <a href="http://github.com/kipfer/pqpico">CK</a> |
             <a href="http://www.uni-stuttgart.de/ieh">IEH</a></li>
-
     </ul>
 </div>
 
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
 <script>
-    var vdata = [];
-    console.log('Script');
-    jQuery(document).ready(function($) {
-        console.log('Jquery');
+jQuery(document).ready(function($) {
+        // Initialize Graphs
+        $('.snippetsizeBox').highcharts({
+            chart: {animation: false,zoomType: 'x'},
+            plotOptions: { series: {color: '#FF3005', marker: {enabled: false}}},
+            title: {text: 'Microseconds for Computation'},
+            subtitle: {text: '10 Perioden-Mittelwerte'},
+            yAxis: {min:0},
+            legend: {enabled: false},
+            series: [{data: [] }],
+            tooltip: {enabled: false}
+            }).hide();
 
-        $.getJSON("jsondata/frequency.json", function(data) {
-            console.log('getJSON');
-            console.log(data);
-            vdata = data.freq;
-            
-            $('#container').highcharts({
-                chart: {
-                    type: 'line',
-                    events: {
-                        load: function() {
-                            var updatedData = this.series[0];
-                            setInterval(function() {    $.getJSON("jsondata/frequency.json", function(data) {
-                                                        vdata = data.freq; });
-                                                        if (vdata.length > updatedData.data.length)
-                                                        {   var i = series.data.length;
-                                                            for (; i < vdata.length; i++)  { series.addPoint(vdata[i],true,false,true); } } } ,1000);
-                        },
-                    }
-                },
-                title: {
-                    text: 'Frequency of 10 periods'
-                },
-                xAxis: {
-                    type:'datetime'
-                },
-                yAxis: {
-                    title: {
-                        text: 'Frequency / Hz',
-                    },
-                    plotBands: [{
-                            color: '#D0D1D2',
-                            from: 49.8,
-                            to: 50.2}]
-                },
-                series: [{
-                    name: 'Frequency',
-                    data: vdata,
-                    pointInterval : 10000 //10 seconds
-                }]
+        $('.voltageGraph').highcharts({
+            chart: {animation: false, zoomType: 'y'},
+            plotOptions: { series: {color: '#FF3005', marker: {enabled: false}}},
+            title: {text: 'Spannung / V'},
+            subtitle: {text: '10 Perioden-Mittelwerte'},
+            yAxis: {min:220, max:240},
+            legend: {enabled: false},
+            series: [{data: [] }],
+            tooltip: {enabled: false}
+            }).hide();
+
+        $('.frequencyGraph').highcharts({
+            chart: {animation: false, zoomType: 'y'},
+            plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
+            title: {text: 'Frequenz / Hz'},
+            subtitle: {text: '10 Sekunden-Mittelwerte'},
+            yAxis: {min:49.5, max:50.5},
+            legend: {enabled: false},
+            series: [{data: [] }]
+            }).hide();
+
+        $('.harmonicsGraph').highcharts({
+            chart: {animation: true, type: 'column'},
+            plotOptions: { series: {color: '#08417C', marker: {enabled: false}, dataLabels: {enabled: true, style: {fontWeight: 'normal'}, color: 'gray'}}},
+            title: {text: 'Harmonische / % (50 Hz)'},
+            subtitle: {text: '10 Perioden-Mittelwerte'},
+            xAxis: { categories: ['2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40']},
+            legend: {enabled: false},
+            series: [{data: [] }]
+            }).hide();
+
+        $('.waveBox').highcharts({
+            chart: {animation: true, zoomType: 'xy'},
+            plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
+            title: {text: 'Wellenform'},
+            legend: {enabled: false},
+            series: [{data: [] }],
+            tooltip: {enabled: false}
+            }).hide();
+
+        $('.thdBox').highcharts({
+            chart: {animation: false, zoomType: 'y'},
+            plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
+            title: {text: 'Total Harmonic Distortion'},
+            yAxis: {min:0, max:8},
+            legend: {enabled: false},
+            series: [{data: [] }],
+            tooltip: {enabled: false}
+            }).hide();
+        
+        $('.flickerGraph').highcharts({
+            chart: {animation: false},
+            plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
+            legend: {enabled: false},
+            series: [{data: [] }]
+            }).hide();
+
+        function clearView() {
+            $('.menulink').removeClass('selected');
+            $('.box').hide();
+        };
+        
+        // Navigation
+        $('.linkOverview').click(function() {
+            clearView();
+            $('.linkOverview').addClass('selected');
+            $('.statusBox').show();
+            $('.freqBox').show();
+            $('.voltBox').show();
+            $('.harmBox').show();
+            $('.flickerBox').show();
+            $('.en50160Box').show();
+        });
+
+        $('.linkStatus').click(function() {
+            clearView();
+            $('.linkStatus').addClass('selected');
+            $('.statusBox').show();
+            $('.snippetsizeBox').show();
+
+            var snippetsizeGraph = $('.snippetsizeBox').highcharts();
+            updateGraph(snippetsizeGraph,'jsondata/snippetsize.json','Snippet Size');
+
+        });
+        $('.linkFrequency').click(function() {
+            clearView();
+            $('.linkFrequency').addClass('selected');
+            $('.freqBox').show();
+            $('.frequencyGraph').show();
+
+            var frequencyGraph = $('.frequencyGraph').highcharts();
+            updateGraph(frequencyGraph,'jsondata/frequency.json','Frequenz');
+        });
+        $('.linkVoltage').click(function() {
+            clearView();
+            $('.linkVoltage').addClass('selected');
+            $('.voltageGraph').show();
+            $('.voltBox').fadeIn(200);
+
+            var voltageGraph = $('.voltageGraph').highcharts();
+            updateGraph(voltageGraph,'jsondata/voltage.json','Spannung');
+        });
+        $('.linkHarmonics').click(function() {
+            clearView();
+            $('.linkHarmonics').addClass('selected');
+            $('.harmonicsGraph').show();
+            $('.harmBox').fadeIn(200);
+            $('.waveBox').show();
+            $('.thdBox').show();
+
+            var harmonicsGraph = $('.harmonicsGraph').highcharts();
+            updateGraph(harmonicsGraph, 'jsondata/harmonics.json', 'Harmonische');
+
+            var waveGraph = $('.waveBox').highcharts();
+            updateGraph(waveGraph, 'jsondata/waveform.json','Spannung');
+
+            var thdGraph = $('.thdBox').highcharts();
+            updateGraph(thdGraph, 'jsondata/thd.json','THD');
+        });
+        $('.linkFlicker').click(function() {
+            clearView();
+            $('.flickerBox').fadeIn(200);
+            var mainchart = $('.flickerGraph').highcharts();
+        });
+
+        function updateGraph(chart,pathString,nameString) {
+            chart.series[0].remove();
+            chart.addSeries({name: nameString, data:[] });
+            function updateGraphRepeater() {
+                $.getJSON(pathString, function(data) {
+                    data = data.values;
+                    chart.series[0].setData(data)
+                    setTimeout(updateGraphRepeater,1000);
+                });
+            }
+            updateGraphRepeater();
+        }
+
+        function updateInfo() {
+            $.getJSON('jsondata/info.json', function(data) {
+                $('.frequency').text(data.currentFreq);
+                $('.voltage').text(data.currentVoltage);
+                $('.thd').text(data.currentTHD);
+                $('.samplerate').text(data.samplingrate);
+                $('.cpuLoad').text(data.cpu);
+                $('.ramLoad').text(data.ram);
+                $('.discLoad').text(data.disk);
+
             });
-    });
+            setTimeout(updateInfo,1000);
+        };
+        updateInfo();
+
 });
 
-
-jQuery(document).ready(function($) {
-        $(".menuitem").click(function() {   var sitename = $(this).attr("id")+".html";
-                                            $("iframe").attr("href",sitename); 
-                                            console.log("Loading page "+sitename)});
-
-        $("a").hover(
-                function() {$(this).addClass("selected");},
-                function() {$(this).removeClass("selected");}
-                            );
-        });
 </script>
 
 </body>
 </html>
-
