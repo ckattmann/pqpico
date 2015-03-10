@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import scipy.signal as signal
 import sys, os
 import json
+import scipy.fftpack as fftpack
 
 ##########------------------------Konstanten-------------------------##########
 
@@ -156,14 +157,30 @@ def calculate_rms_half_period(data):
 # Harmonics & THD
 # ===============
 
-def fast_fourier_transformation(data, SAMPLING_RATE):
-    plot_FFT = 0    #Show FFT Signal Plot        
+def fast_fourier_transformation(data, SAMPLING_RATE, plot_FFT=False):            
     zero_padding = 200000#2**int(np.log(SAMPLING_RATE*0.2)/np.log(2))    
-    #berechnen der Fouriertransformation        
-    FFTdata = np.fft.fftshift(np.fft.fft(data, zero_padding))/zero_padding     
-    #Frequenzen der Oberschwingungen    
+    #calculation of the fft      
+    FFTdata = np.fft.fftshift(np.fft.fft(data, zero_padding))/zero_padding    
+    #frequencies of the harmonics    
     FFTfrequencys = np.fft.fftfreq(FFTdata.size, 1.0/SAMPLING_RATE)
-    #wegkürzen der neczgativen frequenzen und dafür verdoppeln der Amplituden
+    #cut off the negativ indices and double the amplitudes
+    FFTdata = np.abs(FFTdata[(FFTdata.size/2):])*2
+    
+    if (plot_FFT):
+        plt.plot(FFTfrequencys[:FFTdata.size], FFTdata)
+        plt.xlabel("f in Hz") # y-Achse beschriefen
+        plt.ylabel("FFT") # x-Achse beschriften
+        plt.xlim([0,1500]) # länge der angezeigten x-Achse
+    
+    return FFTdata, FFTfrequencys
+
+def fast_fourier_transformation2(data, SAMPLING_RATE, plot_FFT=False):            
+        
+    #calculation of the fft      
+    FFTdata = np.fft.fftshift(np.fft.fft(data))/data.size    
+    #frequencies of the harmonics    
+    FFTfrequencys = np.fft.fftfreq(FFTdata.size, 1.0/SAMPLING_RATE)
+    #cut off the negativ indices and double the amplitudes
     FFTdata = np.abs(FFTdata[(FFTdata.size/2):])*2
     
     if (plot_FFT):
@@ -174,11 +191,28 @@ def fast_fourier_transformation(data, SAMPLING_RATE):
     
     return FFTdata, FFTfrequencys
         
+def fast_fourier_transformation3(data, SAMPLING_RATE, plot_FFT=False):                
+    #calculation of the fft      
+    FFTdata = fftpack.fftshift(fftpack.fft(data))/data.size    
+    #frequencies of the harmonics    
+    FFTfrequencys = np.fft.fftfreq(FFTdata.size, 1.0/SAMPLING_RATE)
+    #cut off the negativ indices and double the amplitudes
+    FFTdata = np.abs(FFTdata[(FFTdata.size/2):])*2
+    
+    if (plot_FFT):
+        plt.plot(FFTfrequencys[:FFTdata.size], FFTdata)
+        plt.xlabel("f in Hz") # y-Achse beschriefen
+        plt.ylabel("FFT") # x-Achse beschriften
+        plt.xlim([0,1500]) # länge der angezeigten x-Achse
+    
+    return FFTdata, FFTfrequencys
         
 def calculate_harmonics_voltage(data, SAMPLING_RATE):
     FFTdata, FFTfrequencys = fast_fourier_transformation(data, SAMPLING_RATE)        
     harmonics_amplitudes = np.zeros(40)
-    area_amplitudes = round(len(FFTdata)*2/float(SAMPLING_RATE)/0.02) #an dieser Stelle sollte sich der Amplitudenausschlag der Oberschwingung befinden           
+    #area_amplitudes = round(len(FFTdata)*2/float(SAMPLING_RATE)/0.02)
+    #The fundamental amplitude is located at index 10, if the window size is exactly ten periods.  
+    area_amplitudes = 10          
     for i in xrange(1,41): 
         #Berechnung der Harmonischen über eine for-Schleife        
         harmonics_amplitudes[i-1] = np.sqrt(np.sum(FFTdata[int(area_amplitudes*i-1):int(area_amplitudes*i+2)]**2)) #direkter Amplitudenwert aus FFT
@@ -187,7 +221,8 @@ def calculate_harmonics_voltage(data, SAMPLING_RATE):
 def calculate_harmonics_standard(data, SAMPLING_RATE):
     FFTdata, FFTfrequencys = fast_fourier_transformation(data, SAMPLING_RATE)        
     harmonics_amplitudes = np.zeros(40)
-    area_amplitudes = len(FFTdata)*2/float(SAMPLING_RATE)/0.02 #an dieser Stelle sollte sich der Amplitudenausschlag der Oberschwingung befinden 
+    #area_amplitudes = round(len(FFTdata)*2/float(SAMPLING_RATE)/0.02)
+    area_amplitudes = 10 
     for i in xrange(1,41): 
         grouping_part1 = 0.5*FFTdata[int(round(area_amplitudes*i-area_amplitudes/2))]**2
         grouping_part2 = 0.5*FFTdata[int(round(area_amplitudes*i+area_amplitudes/2))]**2
@@ -204,11 +239,14 @@ def calculate_THD(harmonics_10periods, SAMPLING_RATE):
 # =======
 
 def convert_data_to_lower_fs(data, SAMPLING_RATE, first_value):
-    step = int(SAMPLING_RATE/4000)
-    delta = np.arange(first_value,data.size,step)
-    data_flicker = data[delta]
-    first_value = step - data[delta[-1]:].size
-    return data_flicker, first_value
+
+    #step = int(SAMPLING_RATE/4000)
+    step = 250
+    #takes every 250th value of the data array
+    data_flicker =data[first_value::step]
+    #calcutation of the new first value
+    new_first_value = step-(data.size-step*(data_flicker.size-1)-first_value)
+    return data_flicker, new_first_value
 
 def convert_data_to_lower_fs2(data, SAMPLING_RATE, restdata):
     reduction_rate = int(SAMPLING_RATE / 4000)
