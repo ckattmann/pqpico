@@ -2,14 +2,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel='stylesheet' type='text/css' href='boxes.css'></link>
-    <link href='http://fonts.googleapis.com/css?family=Roboto:400' rel='stylesheet' type='text/css'> 
+    <link rel='stylesheet' type='text/css' href='main.css'></link>
+    <link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'> 
 </head>
 
 <body>
 <div id='header'>
     <ul>
-        <li class='menupoint'><a class='menulink linkOverview' href="" onclick="return false;">Uebersicht</a></li>
+        <li class='menupoint'><a class='menulink linkOverview' href="" onclick="return false;">Übersicht</a></li>
         <li class='menupoint'><a class='menulink linkStatus' href="" onclick="return false;">Status</a></li>
         <li class='menupoint'><a class='menulink linkFrequency' href="" onclick="return false;">Frequenz</a></li>
         <li class='menupoint'><a class='menulink linkVoltage' href="" onclick="return false;">Spannung</a></li>
@@ -61,10 +61,47 @@
     <div class='box smallbox freqBox'>
         Frequenz
         <div class='mainValue'><span class='frequency'>50,00</span> Hz</div>
+        <table cellspacing='0' class='table'>
+            <tr>
+                <td>Min</td>
+                <td class='statusrow'><span class='statusvalue freqmin'>unknown</span> Hz</td>
+            </tr>
+            <tr>
+                <td>Max</td>
+                <td class='statusrow'><span class='statusvalue freqmax'>unknown</span> Hz</td>
+            </tr>
+            <tr>
+                <td>&empty;</td>
+                <td class='statusrow'><span class='statusvalue freqaverage'>unknown</span> Hz</td>
+            </tr>
+            <tr>
+                <td>% Norm</td>
+                <td class='statusrow'><span class='statusvalue freqperc'>unknown</span> %</td>
+            </tr>
+        </table>
+
     </div>
     <div class='box smallbox voltBox'>
         Spannung
         <div class='mainValue'><span class='voltage'>230,00</span> V<span class=lower>RMS</span></div>
+        <table cellspacing='0' class='table'>
+            <tr>
+                <td>Min</td>
+                <td class='statusrow'><span class='statusvalue voltmin'>unknown</span> V</td>
+            </tr>
+            <tr>
+                <td>Max</td>
+                <td class='statusrow'><span class='statusvalue voltmax'>unknown</span> V</td>
+            </tr>
+            <tr>
+                <td>&empty;</td>
+                <td class='statusrow'><span class='statusvalue voltaverage'>unknown</span> V</td>
+            </tr>
+            <tr>
+                <td>% Norm</td>
+                <td class='statusrow'><span class='statusvalue voltperc'>unknown</span> %</td>
+            </tr>
+        </table>
     </div>
     <div class='box smallbox harmBox'>
         Harmonische
@@ -100,7 +137,7 @@
 jQuery(document).ready(function($) {
         // Initialize Graphs
         $('.snippetsizeBox').highcharts({
-            chart: {animation: false,zoomType: 'x'},
+chart: {animation: false,zoomType: 'x', style: {fontFamily: 'Roboto'}},
             plotOptions: { series: {color: '#FF3005', marker: {enabled: false}}},
             title: {text: 'Microseconds for Computation'},
             subtitle: {text: '10 Perioden-Mittelwerte'},
@@ -111,7 +148,7 @@ jQuery(document).ready(function($) {
             }).hide();
 
         $('.voltageGraph').highcharts({
-            chart: {animation: false, zoomType: 'y'},
+            chart: {animation: false, zoomType: 'y', style: {fontFamily: 'Roboto'}},
             plotOptions: { series: {color: '#FF3005', marker: {enabled: false}}},
             title: {text: 'Spannung / V'},
             subtitle: {text: '10 Perioden-Mittelwerte'},
@@ -122,7 +159,7 @@ jQuery(document).ready(function($) {
             }).hide();
 
         $('.frequencyGraph').highcharts({
-            chart: {animation: false, zoomType: 'y'},
+            chart: {animation: false, zoomType: 'y', style: {fontFamily: 'Roboto'}},
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
             title: {text: 'Frequenz / Hz'},
             subtitle: {text: '10 Sekunden-Mittelwerte'},
@@ -132,7 +169,7 @@ jQuery(document).ready(function($) {
             }).hide();
 
         $('.harmonicsGraph').highcharts({
-            chart: {animation: true, type: 'column'},
+            chart: {animation: true, type: 'column', style: {fontFamily: 'Roboto'}},
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}, dataLabels: {enabled: true, style: {fontWeight: 'normal'}, color: 'gray'}}},
             title: {text: 'Harmonische / % (50 Hz)'},
             subtitle: {text: '10 Perioden-Mittelwerte'},
@@ -142,7 +179,7 @@ jQuery(document).ready(function($) {
             }).hide();
 
         $('.waveBox').highcharts({
-            chart: {animation: true, zoomType: 'xy'},
+            chart: {animation: true, zoomType: 'xy', style: {fontFamily: 'Roboto'}},
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
             title: {text: 'Wellenform'},
             legend: {enabled: false},
@@ -151,7 +188,7 @@ jQuery(document).ready(function($) {
             }).hide();
 
         $('.thdBox').highcharts({
-            chart: {animation: false, zoomType: 'y'},
+            chart: {animation: false, zoomType: 'y', style: {fontFamily: 'Roboto'}},
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
             title: {text: 'Total Harmonic Distortion'},
             yAxis: {min:0, max:8},
@@ -161,7 +198,7 @@ jQuery(document).ready(function($) {
             }).hide();
         
         $('.flickerGraph').highcharts({
-            chart: {animation: false},
+            chart: {animation: false, style: {fontFamily: 'Roboto'}},
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
             legend: {enabled: false},
             series: [{data: [] }]
