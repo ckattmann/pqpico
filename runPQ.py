@@ -176,11 +176,12 @@ try:
         # Construct pretty string about measurement time
         measurement_time = int(round(time.time() - start_time))
         days = measurement_time / 60 / 60 / 24
-        hours = measurement_time / 60 / 60
-        minutes = measurement_time / 60
+        hours = measurement_time%(60*60*24) / 60 / 60
+        minutes = measurement_time%(60*60) / 60
         seconds = measurement_time % 60
         measurement_time_string = str(days)+'d, '+str(hours)+'h, '+str(minutes)+'m, '+str(seconds)+'s'
-        infoDict = {'samplingrate':streaming_sample_interval, 
+        infoDict = {'measurement_alive':1, 
+                    'samplingrate':streaming_sample_interval, 
                     'ram':round(psutil.virtual_memory()[2],1),
                     'cpu':round(psutil.cpu_percent(),1),
                     'disk':round(psutil.disk_usage('/')[3],1),
@@ -263,6 +264,23 @@ try:
 
 
 finally:
+    # Write one last JSON including death flag
+    infoDict = {'measurement_alive':0, 
+                'samplingrate':streaming_sample_interval, 
+                'ram':round(psutil.virtual_memory()[2],1),
+                'cpu':round(psutil.cpu_percent(),1),
+                'disk':round(psutil.disk_usage('/')[3],1),
+                'currentFreq': round(frequency_10periods,3),
+                'currentVoltage': round(rms_10periods,2),
+                'currentTHD': round(thd_10periods,2),
+                'lastPst': round(lastPst,2),
+                'lastPlt': round(lastPlt,2),
+                'measurement_time': measurement_time_string}
+
+    with open(os.path.join('html','jsondata','info.json'),'wb') as f:
+        f.write(json.dumps(infoDict))
+
+    # Stop Sampling and release Picoscope unit
     pico.close_unit()
 
     # Error Handling: Save and log all variables

@@ -304,6 +304,16 @@ chart: {animation: false,zoomType: 'x', style: {fontFamily: 'Roboto'}},
                 $('.Pst').text(data.lastPst);
                 $('.Plt').text(data.lastPlt);
                 $('.measurement_time').text(data.measurement_time);
+
+                if (data.measurement_alive === 0) {
+                    $('.statusOK').text('Messung inaktiv');
+                    $('.statusOK').css('color','red');
+                }
+                else {
+                    $('.statusOK').text('Messung aktiv');
+                    $('.statusOK').css('color','green');
+                }
+                    
             });
             setTimeout(updateInfo,1000);
         };
