@@ -1,1 +1,1 @@
-{"samplingrate": 1000001, "disk": 7.7, "currentFreq": 49.999, "lastPlt": 1.0, "currentVoltage": 235.35, "lastPst": 0.09, "ram": 31.8, "cpu": 29.7, "currentTHD": 1.83}
+{"samplingrate": 999999, "disk": 55.3, "currentFreq": 50.368723, "lastPlt": 0.11, "measurement_time": "0d 0h 0m 6s", "currentVoltage": 235.38479562, "lastPst": 0.01, "ram": 46.1, "cpu": 11.2, "currentTHD": 2.12315}

@@ -3,7 +3,8 @@ body {
   margin: 0;
   font-family: Roboto, monospace;
   letter-spacing: 1;
-  font-size: 16
+  font-size: 16;
+  background-color: #DADADA;
 }
 :focus {
   outline: 0;
@@ -85,6 +86,9 @@ tr td{
   border-collapse: collapse;
   border-left: 0;
   border-right: 0;
+}
+.lastRow {
+  border-bottom: 0;
 }
 
 .statusvalue {

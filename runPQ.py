@@ -67,6 +67,8 @@ dataLogger.addHandler(fhd)
 dataLogger.addHandler(shd)
 
 
+start_time = time.time()
+
 # Main PQ Measurement and Calculation loop
 # ========================================
 
@@ -170,6 +172,14 @@ try:
         pq.writeJSON(thd_10periods_list,100,'thd.json')
 
         # Write JSON file about current situation
+        # =======================================
+        # Construct pretty string about measurement time
+        measurement_time = int(round(time.time() - start_time))
+        days = measurement_time / 60 / 60 / 24
+        hours = measurement_time / 60 / 60
+        minutes = measurement_time / 60
+        seconds = measurement_time % 60
+        measurement_time_string = str(days)+'d, '+str(hours)+'h, '+str(minutes)+'m, '+str(seconds)+'s'
         infoDict = {'samplingrate':streaming_sample_interval, 
                     'ram':round(psutil.virtual_memory()[2],1),
                     'cpu':round(psutil.cpu_percent(),1),
@@ -178,7 +188,8 @@ try:
                     'currentVoltage': round(rms_10periods,2),
                     'currentTHD': round(thd_10periods,2),
                     'lastPst': round(lastPst,2),
-                    'lastPlt': round(lastPlt,2)}
+                    'lastPlt': round(lastPlt,2),
+                    'measurement_time': measurement_time_string}
         with open(os.path.join('html','jsondata','info.json'),'wb') as f:
             f.write(json.dumps(infoDict))
 

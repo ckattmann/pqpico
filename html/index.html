@@ -57,6 +57,10 @@
                 <td>Festplatte</td>
                 <td class='statusrow'><span class='statusvalue discLoad'>unknown</span> %</td>
             </tr>
+            <tr>
+                <td>Messzeit</td>
+                <td class='statusrow'><span class='statusvalue measurement_time'>unknown</span></td>
+            </tr>
         </table>
     </div>
     <div class='box smallbox freqBox'>
@@ -64,11 +68,11 @@
         <div class='mainValue'><span class='frequency'>50,00</span> Hz</div>
         <table cellspacing='0' class='table'>
             <tr>
-                <td>Min</td>
+                <td>min</td>
                 <td class='statusrow'><span class='statusvalue freqmin'>unknown</span> Hz</td>
             </tr>
             <tr>
-                <td>Max</td>
+                <td>max</td>
                 <td class='statusrow'><span class='statusvalue freqmax'>unknown</span> Hz</td>
             </tr>
             <tr>
@@ -87,11 +91,11 @@
         <div class='mainValue'><span class='voltage'>230,00</span> V<span class=lower>RMS</span></div>
         <table cellspacing='0' class='table'>
             <tr>
-                <td>Min</td>
+                <td>min</td>
                 <td class='statusrow'><span class='statusvalue voltmin'>unknown</span> V</td>
             </tr>
             <tr>
-                <td>Max</td>
+                <td>max</td>
                 <td class='statusrow'><span class='statusvalue voltmax'>unknown</span> V</td>
             </tr>
             <tr>
@@ -299,7 +303,7 @@ chart: {animation: false,zoomType: 'x', style: {fontFamily: 'Roboto'}},
                 $('.discLoad').text(data.disk);
                 $('.Pst').text(data.lastPst);
                 $('.Plt').text(data.lastPlt);
-
+                $('.measurement_time').text(data.measurement_time);
             });
             setTimeout(updateInfo,1000);
         };
