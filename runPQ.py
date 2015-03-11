@@ -112,9 +112,13 @@ try:
         # ===============
         number_of_10periods += 1
         zero_indices = data.get_zero_indices()[:21]
-        if zero_indices.size < 15 or zero_indices.size > 200:
-            #Is this really 50Hz Sinus Data?
-            dataLogger.error('Number of zero crossings in '+str(data.get_data_view().size)+': '+str(zero_indices.size))
+
+        # Check zero_indices for plausibility (45 Hz > f < 55Hz)
+        if any(np.diff(zero_indices) > 22222): # < 45 Hz
+            dataLogger.error('Distance between two zero crossings: '+str(max(np.diff(zero_indices))))
+        if any(np.diff(zero_indices) > 18181): # > 55 Hz
+            dataLogger.error('Distance between two zero crossings: '+str(min(np.diff(zero_indices))))
+
         dataLogger.debug('Cutting off :'+str(zero_indices[20]))
         queueLogger.debug('Cutting off:            -'+str(zero_indices[20]))        
 
@@ -124,8 +128,6 @@ try:
 
         # Write last waveform to JSON
         waveform = data_10periods[zero_indices[18]:zero_indices[20]]
-        print('zero_indices  : '+str(zero_indices))
-        print('data_10periods: '+str(data_10periods))
         if (waveform[200] < 0):
             waveform = data_10periods[zero_indices[17]:zero_indices[19]]
         waveform = pq.moving_average2(waveform, 25)

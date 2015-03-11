@@ -247,6 +247,16 @@ chart: {animation: false,zoomType: 'x', style: {fontFamily: 'Roboto'}},
             var frequencyGraph = $('.frequencyGraph').highcharts();
             updateGraph(frequencyGraph,'jsondata/frequency.json','Frequenz');
         });
+        // Proposal :
+        $('.freqBox').click(function() {
+            clearView();
+            $('.linkFrequency').addClass('selected');
+            $('.freqBox').show();
+            $('.frequencyGraph').show();
+
+            var frequencyGraph = $('.frequencyGraph').highcharts();
+            updateGraph(frequencyGraph,'jsondata/frequency.json','Frequenz');
+        });
         $('.linkVoltage').click(function() {
             clearView();
             $('.linkVoltage').addClass('selected');
