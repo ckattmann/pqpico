@@ -239,20 +239,25 @@ def calculate_THD(harmonics_10periods, SAMPLING_RATE):
 # =======
 
 def convert_data_to_lower_fs(data, SAMPLING_RATE, first_value):
-
     #step = int(SAMPLING_RATE/4000)
     step = 250
     #takes every 250th value of the data array
-    data_flicker =data[first_value::step]
+    data_flicker = data[first_value::step]
     #calcutation of the new first value
     new_first_value = step-(data.size-step*(data_flicker.size-1)-first_value)
     return data_flicker, new_first_value
 
 def convert_data_to_lower_fs2(data, SAMPLING_RATE, restdata):
-    reduction_rate = int(SAMPLING_RATE / 4000)
-    data = np.append(data,restdata)
+    print('=====convert_data_to_lower_fs2()=======')
+    print('data.size : '+data.size)
+    print('restdata. size : '*str(restdata.size))
+    reduction_rate = int(round(SAMPLING_RATE / 4000))
+    data = np.append(restdata,data)
     reduced_data = data[::reduction_rate]
+    print('reduceddata.size : '+str(reduceddata.size))
+    print('data.size % reduction_rate : '+str(reduction_rate))
     restdata = data[data.size % reduction_rate]
+    print(' new restdata.size : '+str(restdata.size))
     return reduced_data, restdata
 
 def calculate_Pst(data):    

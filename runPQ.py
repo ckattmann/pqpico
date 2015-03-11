@@ -84,7 +84,7 @@ try:
                 
                 # Prepare data for Flicker calculation
                 # ====================================
-                data_for_10min, restdata = pq.convert_data_to_lower_fs2(snippet, streaming_sample_interval+1, restdata)
+                data_for_10min, first_value = pq.convert_data_to_lower_fs(snippet, streaming_sample_interval+1, first_value)
                 data_10min.attach_to_back(data_for_10min)
 
                 queueLogger.debug('Length of snippet:      +'+str(snippet.size))
@@ -235,7 +235,7 @@ try:
 
         # Calculate flicker of 2 hours    
         # ============================
-        if (len(pst_list)==12):
+        if (len(pst_list) == 12):
             Plt = pq.calculate_Plt(pst_list)
             dataLogger.info(pq.test_plt(Plt))
 
