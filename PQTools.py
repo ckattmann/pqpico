@@ -421,7 +421,7 @@ def calculate_Pst(data):
     return P_st 
     
 def calculate_Plt(Pst_list):
-    P_lt = np.power(np.power(Pst_list,3)/12,1/3)
+    P_lt = np.power(np.sum(np.power(Pst_list,3)/12),1/3)
     return P_lt
     
 # Unbalance
