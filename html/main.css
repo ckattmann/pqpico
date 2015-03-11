@@ -4,7 +4,6 @@ body {
   font-family: Roboto, monospace;
   letter-spacing: 1;
   font-size: 16;
-  background-color: #DADADA;
 }
 :focus {
   outline: 0;
