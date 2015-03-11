@@ -144,7 +144,7 @@ tr td{
 .statusOK {
   text-align: center;
   letter-spacing: 2;
-  background-color: yellowgreen;
+  font-size: 45;
 }
 
 div.graybar {

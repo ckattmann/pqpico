@@ -72,12 +72,12 @@
                 <td class='statusrow'><span class='statusvalue freqmin'>unknown</span> Hz</td>
             </tr>
             <tr>
-                <td>max</td>
-                <td class='statusrow'><span class='statusvalue freqmax'>unknown</span> Hz</td>
-            </tr>
-            <tr>
                 <td>&empty;</td>
                 <td class='statusrow'><span class='statusvalue freqaverage'>unknown</span> Hz</td>
+            </tr>
+            <tr>
+                <td>max</td>
+                <td class='statusrow'><span class='statusvalue freqmax'>unknown</span> Hz</td>
             </tr>
             <tr>
                 <td>% Norm</td>
@@ -95,12 +95,12 @@
                 <td class='statusrow'><span class='statusvalue voltmin'>unknown</span> V</td>
             </tr>
             <tr>
-                <td>max</td>
-                <td class='statusrow'><span class='statusvalue voltmax'>unknown</span> V</td>
-            </tr>
-            <tr>
                 <td>&empty;</td>
                 <td class='statusrow'><span class='statusvalue voltaverage'>unknown</span> V</td>
+            </tr>
+            <tr>
+                <td>max</td>
+                <td class='statusrow'><span class='statusvalue voltmax'>unknown</span> V</td>
             </tr>
             <tr>
                 <td>% Norm</td>
@@ -295,7 +295,13 @@ chart: {animation: false,zoomType: 'x', style: {fontFamily: 'Roboto'}},
         function updateInfo() {
             $.getJSON('jsondata/info.json', function(data) {
                 $('.frequency').text(data.currentFreq);
+                $('.freqmin').text(data.freqmin);
+                $('.freqmax').text(data.freqmax);
+                $('.freqaverage').text(data.freqavrg);
                 $('.voltage').text(data.currentVoltage);
+                $('.voltmin').text(data.voltmin);
+                $('.voltmax').text(data.voltmax);
+                $('.voltaverage').text(data.voltavrg);
                 $('.thd').text(data.currentTHD);
                 $('.samplerate').text(data.samplingrate);
                 $('.cpuLoad').text(data.cpu);
