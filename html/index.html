@@ -2,7 +2,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>PQ</title>
+    <title>PQ Monitor</title>
     <link rel='stylesheet' type='text/css' href='main.css'></link>
     <link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'> 
 </head>
@@ -106,10 +106,12 @@
     </div>
     <div class='box smallbox harmBox'>
         Harmonische
-        <div class='mainValue'><span class='thd'>2,00</span> %<span class=lower>THD</span></div>
+        <div class='mainValue'><span class='thd'>2,00</span> %<span class=lower>THD</span><span class='lower lowest'>U</span></div>
     </div>
     <div class='box smallbox flickerBox'>
         Flicker
+        <div class='mainValue'><span class='Pst'>-</span><span class=lower> Pst</span></div>
+        <div class='mainValue'><span class='Plt'>-</span><span class=lower> Plt</span></div>
     </div>
     <div class='box smallbox en50160Box'>
         EN 50160
@@ -295,6 +297,8 @@ chart: {animation: false,zoomType: 'x', style: {fontFamily: 'Roboto'}},
                 $('.cpuLoad').text(data.cpu);
                 $('.ramLoad').text(data.ram);
                 $('.discLoad').text(data.disk);
+                $('.Pst').text(data.lastPst);
+                $('.Plt').text(data.lastPlt);
 
             });
             setTimeout(updateInfo,1000);

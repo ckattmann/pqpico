@@ -58,8 +58,11 @@ a:hover {
 .smallbox {
   padding: 10px;
   margin: 10px;
+  margin-left: 20px;
+  margin-top: 20px;
   width: 30%;
-  height: 40%;
+  min-width: 380px;
+  height: 350px;
   text-align: left;
   font-size: 30;
 }
@@ -96,6 +99,11 @@ tr td{
 .lower {
   vertical-align: -1px;
   font-size: 40%
+}
+
+.lowest {
+  vertical-align: -4px;
+  font-size: 20%
 }
 
 .freqBox {

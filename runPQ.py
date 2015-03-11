@@ -35,6 +35,8 @@ snippet_size_list = []
 first_value = 0
 restdata = []
 is_first_iteration = 1
+lastPst = 0
+lastPlt = 0
 #time.sleep(0.5) # Activate when first data is None and first iterations runs with None data, should be fixed
 
 # Initialize Logging
@@ -174,7 +176,9 @@ try:
                     'disk':round(psutil.disk_usage('/')[3],1),
                     'currentFreq': round(frequency_10periods,3),
                     'currentVoltage': round(rms_10periods,2),
-                    'currentTHD': round(thd_10periods,2)}
+                    'currentTHD': round(thd_10periods,2),
+                    'lastPst': round(lastPst,2),
+                    'lastPlt': round(lastPlt,2)}
         with open(os.path.join('html','jsondata','info.json'),'wb') as f:
             f.write(json.dumps(infoDict))
 
@@ -229,14 +233,18 @@ try:
         if (data_10min.size > 2400000):
             flicker_data = data_10min.cut_off_front2(600*streaming_sample_interval/250)
             Pst = pq.calculate_Pst(flicker_data)
+            lastPst = Pst
             pst_list.append(Pst)
             dataLogger.info('Pst: '+str(Pst))
+            
+            #pq.writeJSON(pst_list, 200, 'flicker.json')
 
 
         # Calculate flicker of 2 hours    
         # ============================
         if (len(pst_list) == 12):
             Plt = pq.calculate_Plt(pst_list)
+            lastPlt = Plt
             dataLogger.info(pq.test_plt(Plt))
 
 #except KeyboardInterrupt:
