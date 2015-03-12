@@ -36,6 +36,7 @@ number_of_10periods = 0
 first_value = 0
 restdata = []
 is_first_iteration = 1
+is_first_10periods = 1
 lastPst = 0
 lastPlt = 0
 #time.sleep(0.5) # Activate when first data is None and first iterations runs with None data, should be fixed
@@ -124,6 +125,7 @@ try:
 
         data_10periods = data.cut_off_front2(zero_indices[20], 20)
 
+
         queueLogger.debug('Length of current data: '+str(data.size))
 
         # Write last waveform to JSON
@@ -187,13 +189,24 @@ try:
         measurement_time_string = str(days)+'d, '+str(hours)+'h, '+str(minutes)+'m, '+str(seconds)+'s'
 
         # find min, max and average frequency and voltage
+
+        if (is_first_10periods):
+            min_freq = frequency_10periods
+            max_freq = frequency_10periods
+            avrg_freq = frequency_10periods
+
+            min_volt = rms_10periods
+            max_volt = rms_10periods
+            avrg_volt = rms_10periods
+            is_first_10periods = 0
+
         min_freq = min(min_freq,frequency_10periods)
         max_freq = max(max_freq,frequency_10periods)
-        avrg_freq = avrg_freq + frequency_10periods) / (number_of_10periods + 1.0)
+        avrg_freq = (avrg_freq*number_of_10periods + frequency_10periods) / (number_of_10periods + 1.0)
 
         min_volt = min(min_volt,rms_10periods)
         max_volt = max(max_volt,rms_10periods)
-        avrg_volt = avrg_volt + rms_10periods) / (number_of_10periods + 1.0)
+        avrg_volt = (avrg_volt*number_of_10periods + rms_10periods) / (number_of_10periods + 1.0)
 
         infoDict = {# Status Info
                     'measurement_alive':1, 
