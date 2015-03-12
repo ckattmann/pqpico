@@ -3,7 +3,7 @@ body {
   margin: 0;
   font-family: Roboto, monospace;
   letter-spacing: 1;
-  font-size: 16
+  font-size: 16;
 }
 :focus {
   outline: 0;
@@ -66,6 +66,9 @@ a:hover {
   text-align: left;
   font-size: 30;
 }
+.smallbox.hover {
+  background-color: yellowgreen;
+}
 .statusrow {
   text-align: right;
 }
@@ -85,6 +88,9 @@ tr td{
   border-collapse: collapse;
   border-left: 0;
   border-right: 0;
+}
+.lastRow {
+  border-bottom: 0;
 }
 
 .statusvalue {
@@ -140,7 +146,7 @@ tr td{
 .statusOK {
   text-align: center;
   letter-spacing: 2;
-  background-color: yellowgreen;
+  font-size: 45;
 }
 
 div.graybar {

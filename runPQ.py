@@ -32,6 +32,7 @@ harmonics_10periods_list = []
 pst_list = []
 snippet_size_list = []
 
+number_of_10periods = 0
 first_value = 0
 restdata = []
 is_first_iteration = 1
@@ -66,6 +67,8 @@ shd.setFormatter(formatterd)
 dataLogger.addHandler(fhd)
 dataLogger.addHandler(shd)
 
+
+start_time = time.time()
 
 # Main PQ Measurement and Calculation loop
 # ========================================
@@ -107,10 +110,15 @@ try:
         
         # Find 10 periods
         # ===============
+        number_of_10periods += 1
         zero_indices = data.get_zero_indices()[:21]
-        if zero_indices.size < 15 or zero_indices.size > 200:
-            #Is this really 50Hz Sinus Data?
-            dataLogger.error('Number of zero crossings in '+str(data.get_data_view().size)+': '+str(zero_indices.size))
+
+        # Check zero_indices for plausibility (45 Hz > f < 55Hz)
+        if any(np.diff(zero_indices) > 22222): # < 45 Hz
+            dataLogger.error('Distance between two zero crossings: '+str(max(np.diff(zero_indices))))
+        if any(np.diff(zero_indices) > 18181): # > 55 Hz
+            dataLogger.error('Distance between two zero crossings: '+str(min(np.diff(zero_indices))))
+
         dataLogger.debug('Cutting off :'+str(zero_indices[20]))
         queueLogger.debug('Cutting off:            -'+str(zero_indices[20]))        
 
@@ -120,8 +128,6 @@ try:
 
         # Write last waveform to JSON
         waveform = data_10periods[zero_indices[18]:zero_indices[20]]
-        print('zero_indices  : '+str(zero_indices))
-        print('data_10periods: '+str(data_10periods))
         if (waveform[200] < 0):
             waveform = data_10periods[zero_indices[17]:zero_indices[19]]
         waveform = pq.moving_average2(waveform, 25)
@@ -170,13 +176,45 @@ try:
         pq.writeJSON(thd_10periods_list,100,'thd.json')
 
         # Write JSON file about current situation
-        infoDict = {'samplingrate':streaming_sample_interval, 
+        # =======================================
+
+        # Construct pretty string about measurement time
+        measurement_time = int(round(time.time() - start_time))
+        days = measurement_time / 60 / 60 / 24
+        hours = measurement_time%(60*60*24) / 60 / 60
+        minutes = measurement_time%(60*60) / 60
+        seconds = measurement_time % 60
+        measurement_time_string = str(days)+'d, '+str(hours)+'h, '+str(minutes)+'m, '+str(seconds)+'s'
+
+        # find min, max and average frequency and voltage
+        min_freq = min(min_freq,frequency_10periods)
+        max_freq = max(max_freq,frequency_10periods)
+        avrg_freq = avrg_freq + frequency_10periods) / (number_of_10periods + 1.0)
+
+        min_volt = min(min_volt,rms_10periods)
+        max_volt = max(max_volt,rms_10periods)
+        avrg_volt = avrg_volt + rms_10periods) / (number_of_10periods + 1.0)
+
+        infoDict = {# Status Info
+                    'measurement_alive':1, 
+                    'samplingrate':streaming_sample_interval, 
                     'ram':round(psutil.virtual_memory()[2],1),
                     'cpu':round(psutil.cpu_percent(),1),
                     'disk':round(psutil.disk_usage('/')[3],1),
+                    'measurement_time': measurement_time_string,
+                    # Frequency Info
                     'currentFreq': round(frequency_10periods,3),
+                    'freqmin': round(min_freq,3),
+                    'freqmax': round(max_freq,3),
+                    'freqavrg': round(avrg_freq,3),
+                    # Voltage Info
                     'currentVoltage': round(rms_10periods,2),
+                    'voltmin': round(min_volt,3),
+                    'voltmax': round(max_volt,3),
+                    'voltavrg': round(avrg_volt,3),
+                    # Harmonics Info
                     'currentTHD': round(thd_10periods,2),
+                    # Flicker Info
                     'lastPst': round(lastPst,2),
                     'lastPlt': round(lastPlt,2)}
         with open(os.path.join('html','jsondata','info.json'),'wb') as f:
@@ -252,6 +290,23 @@ try:
 
 
 finally:
+    # Write one last JSON including death flag
+    infoDict = {'measurement_alive':0, 
+                'samplingrate':streaming_sample_interval, 
+                'ram':round(psutil.virtual_memory()[2],1),
+                'cpu':round(psutil.cpu_percent(),1),
+                'disk':round(psutil.disk_usage('/')[3],1),
+                'currentFreq': round(frequency_10periods,3),
+                'currentVoltage': round(rms_10periods,2),
+                'currentTHD': round(thd_10periods,2),
+                'lastPst': round(lastPst,2),
+                'lastPlt': round(lastPlt,2),
+                'measurement_time': measurement_time_string}
+
+    with open(os.path.join('html','jsondata','info.json'),'wb') as f:
+        f.write(json.dumps(infoDict))
+
+    # Stop Sampling and release Picoscope unit
     pico.close_unit()
 
     # Error Handling: Save and log all variables
