@@ -20,34 +20,33 @@ class ring_array_global_data():
     def attach_to_back(self, data_to_attach):
         zero_indices_to_attach = np.array(pq.detect_zero_crossings(data_to_attach))
 
-        print('----------------------------------')
-        print('zero_indices : '+str(self.zero_indices))
-        print('size_zero_indices : '+str(self.size_zero_indices))
-        print('zero_indices_to_attach.size : '+str(zero_indices_to_attach.size))
-        print('zero_indices_to_attach'+str(zero_indices_to_attach))
-        print('self.size : '+str(self.size))
-        print(self.zero_indices[-1])
+        #print('----------------------------------')
+        #print('zero_indices : '+str(self.zero_indices))
+        #print('size_zero_indices : '+str(self.size_zero_indices))
+        #print('zero_indices_to_attach.size : '+str(zero_indices_to_attach.size))
+        #print('zero_indices_to_attach'+str(zero_indices_to_attach))
+        #print('self.size : '+str(self.size))
 
         if zero_indices_to_attach.size > 1 and zero_indices_to_attach[-1] - zero_indices_to_attach[-2] < 10:  
-            print('Double ZC at end of data_to_attach')
+            #print('Double ZC at end of data_to_attach')
             zero_indices_to_attach = np.delete(zero_indices_to_attach,-1)
 
-        # TEMP
+        # TEMP for plotting
         rb = self.ringBuffer[:self.size]
         #    
 
         self.zero_indices[self.size_zero_indices:self.size_zero_indices + zero_indices_to_attach.size] = zero_indices_to_attach + self.size
 
-        print('zero_indices : '+str(self.zero_indices))
-        print('size_zero_indices : '+str(self.size_zero_indices))
+        #print('zero_indices : '+str(self.zero_indices))
+        #print('size_zero_indices : '+str(self.size_zero_indices))
 
-        print('distance between ZC of adjacent segments'+str(self.zero_indices[self.size_zero_indices] - self.zero_indices[self.size_zero_indices-1]))
+        #print('distance between ZC of adjacent segments'+str(self.zero_indices[self.size_zero_indices] - self.zero_indices[self.size_zero_indices-1]))
 
         # Check for two zero crossings directly after attachment
         if zero_indices_to_attach.size > 0 and self.zero_indices[self.size_zero_indices] - self.zero_indices[self.size_zero_indices-1] < 10:
-            print('Close zero_indices')
-            print('last ZC of old data : '+str(self.zero_indices[self.size_zero_indices-1]))
-            print('first ZC of data_to_attach : '+str(self.zero_indices[self.size_zero_indices]))
+            #print('Close zero_indices')
+            #print('last ZC of old data : '+str(self.zero_indices[self.size_zero_indices-1]))
+            #print('first ZC of data_to_attach : '+str(self.zero_indices[self.size_zero_indices]))
             self.zero_indices = np.delete(self.zero_indices,self.size_zero_indices)
             self.size_zero_indices -= 1
 
@@ -138,10 +137,7 @@ class ring_array():
         return self.ringBuffer[index]
     
     def attach_to_back(self, data_to_attach):       
-        try:
-            self.ringBuffer[self.size:self.size + data_to_attach.size] = data_to_attach
-        except AttributeError:
-            print('data_to_attach has no .size attribute, should be of type numpy.ndarray')
+        self.ringBuffer[self.size:self.size + data_to_attach.size] = data_to_attach
         self.size += data_to_attach.size
         
     def cut_off_front(self,index):
