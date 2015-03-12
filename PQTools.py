@@ -168,10 +168,10 @@ def calculate_rms_half_period(data):
 # Harmonics & THD
 # ===============
 
-def fast_fourier_transformation(data, SAMPLING_RATE, plot_FFT=False):            
-    zero_padding = 200000#2**int(np.log(SAMPLING_RATE*0.2)/np.log(2))    
+def fast_fourier_transformation2(data, SAMPLING_RATE, plot_FFT=False):            
+    zero_padding = 200000  
     #calculation of the fft      
-    FFTdata = np.fft.fftshift(np.fft.fft(data, zero_padding))/zero_padding    
+    FFTdata = np.fft.fftshift(np.fft.fft(data, zero_padding)/zero_padding)    
     #frequencies of the harmonics    
     FFTfrequencys = np.fft.fftfreq(FFTdata.size, 1.0/SAMPLING_RATE)
     #cut off the negativ indices and double the amplitudes
@@ -185,7 +185,7 @@ def fast_fourier_transformation(data, SAMPLING_RATE, plot_FFT=False):
     
     return FFTdata, FFTfrequencys
 
-def fast_fourier_transformation2(data, SAMPLING_RATE, plot_FFT=False):            
+def fast_fourier_transformation3(data, SAMPLING_RATE, plot_FFT=False):            
         
     #calculation of the fft      
     FFTdata = np.fft.fftshift(np.fft.fft(data))/data.size    
@@ -202,9 +202,11 @@ def fast_fourier_transformation2(data, SAMPLING_RATE, plot_FFT=False):
     
     return FFTdata, FFTfrequencys
         
-def fast_fourier_transformation3(data, SAMPLING_RATE, plot_FFT=False):                
+def fast_fourier_transformation(data, SAMPLING_RATE, plot_FFT=False):                
+    # the biggest prime value in zero_padding defines the calculation speed   
+    zero_padding = 200000 
     #calculation of the fft      
-    FFTdata = fftpack.fftshift(fftpack.fft(data))/data.size    
+    FFTdata = fftpack.fftshift(fftpack.fft(data, zero_padding)/zero_padding)  
     #frequencies of the harmonics    
     FFTfrequencys = np.fft.fftfreq(FFTdata.size, 1.0/SAMPLING_RATE)
     #cut off the negativ indices and double the amplitudes
@@ -432,7 +434,7 @@ def calculate_Pst(data):
     return P_st 
     
 def calculate_Plt(Pst_list):
-    P_lt = np.power(np.sum(np.power(Pst_list,3)/12),1/3)
+    P_lt = np.power(np.sum(np.power(Pst_list,3)/12),1./3)
     return P_lt
     
 # Unbalance
