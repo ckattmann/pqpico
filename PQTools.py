@@ -47,12 +47,23 @@ def moving_average(a,n=25):
     return np.append(np.zeros(n/2),ret[n-1:]/n)
 
 def moving_average2(values,window=25):
-    weigths = np.repeat(1.0, window)/window
+    # window should be odd number
+    weights = np.repeat(1.0, window)/window
+    #print(str(weights))
     #including valid will REQUIRE there to be enough datapoints.
+
     #for example, if you take out valid, it will start @ point one,
     #not having any prior points, so itll be 1+0+0 = 1 /3 = .3333
-    smas = np.convolve(values, weigths, 'same')
-    return smas # as a numpy array
+
+    # Pad by mirroring values at the start and end
+    new_values = np.append(values[0]-np.cumsum(np.diff(values[:window/2+1]))[::-1],values)
+    new_values = np.append(new_values,values[-1]+np.cumsum(np.diff(values[-(window/2+1):]))[::1])
+    
+    smas = np.convolve(new_values, weights, 'same')
+    smas = smas[window/2:-window/2+1]
+    smas[0] = values[0]
+    smas[-1] = values[-1]
+    return  smas# as a numpy array
 
 def Lowpass_Filter(data, SAMPLING_RATE):
     show_filtered_measurement = 1    

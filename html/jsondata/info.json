@@ -1,1 +1,1 @@
-{"lastPlt": 0.0, "ram": 31.6, "lastPst": 0.0, "disk": 7.7, "currentTHD": 2.07, "currentFreq": 50.0, "measurement_alive": 0, "currentVoltage": 233.84, "samplingrate": 1000001, "measurement_time": "0d, 0h, 2m, 3s", "cpu": 50.0}
+{"voltmax": 234.656, "lastPlt": 0.0, "currentFreq": 49.986, "measurement_alive": 1, "currentVoltage": 233.79, "ram": 33.8, "freqmin": 49.97, "voltavrg": 233.704, "samplingrate": 1000001, "freqmax": 50.05, "voltmin": 232.556, "lastPst": 0.1, "measurement_time": "0d, 1h, 3m, 39s", "freqavrg": 50.006, "disk": 7.7, "cpu": 27.6, "currentTHD": 2.27}

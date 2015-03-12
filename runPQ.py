@@ -44,30 +44,19 @@ lastPlt = 0
 # Initialize Logging
 # ==================
 
-queueLogger = logging.getLogger('queueLogger')
-queueLogger.setLevel(logging.INFO)
-fhq = logging.FileHandler('Logs/queueLog.log')
-fhq.setLevel(logging.INFO)
-shq = logging.StreamHandler()
-shq.setLevel(logging.WARNING)
+pqLogger = logging.getLogger('pqLogger')
+filehandler = logging.FileHandler('Logs/pqLog.log')
+streamhandler = logging.StreamHandler()
+
+pqLogger.setLevel(logging.INFO)
+filehandler.setLevel(logging.INFO)
+streamhandler.setLevel(logging.WARNING)
+
 formatterq = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
-fhq.setFormatter(formatterq)
-shq.setFormatter(formatterq)
-queueLogger.addHandler(fhq)
-queueLogger.addHandler(shq)
-
-dataLogger = logging.getLogger('dataLogger')
-dataLogger.setLevel(logging.DEBUG)
-fhd = logging.FileHandler('Logs/dataLog.log')
-fhd.setLevel(logging.ERROR)
-shd = logging.StreamHandler()
-shd.setLevel(logging.WARNING)
-formatterd = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
-fhd.setFormatter(formatterd)
-shd.setFormatter(formatterd)
-dataLogger.addHandler(fhd)
-dataLogger.addHandler(shd)
-
+filehandler.setFormatter(formatterq)
+streamhandler.setFormatter(formatterq)
+pqLogger.addHandler(filehandler)
+pqLogger.addHandler(streamhandler)
 
 start_time = time.time()
 
@@ -93,19 +82,16 @@ try:
                 data_for_10min, first_value = pq.convert_data_to_lower_fs(snippet, streaming_sample_interval+1, first_value)
                 data_10min.attach_to_back(data_for_10min)
 
-                queueLogger.debug('Length of snippet:      +'+str(snippet.size))
-                queueLogger.debug('Length of current data: '+str(data.size))
+                pqLogger.debug('Length of snippet:       +'+str(snippet.size))
+                pqLogger.debug('Length of current data: '+str(data.size))
                     
-            else:
-                pass    
-       
         # Cut off everything before the first zero crossing:
         # ==================================================           
         if is_first_iteration:
             first_zero_crossing = data.get_zero_indices()[0]
-            queueLogger.debug('Cut off '+str(first_zero_crossing)+' values before first zero crossing') 
+            pqLogger.debug('Cut off '+str(first_zero_crossing)+' values before first zero crossing') 
             data.cut_off_front2(first_zero_crossing, 0)
-            queueLogger.debug('Length of current data: '+str(data.size))
+            pqLogger.debug('Length of current data: '+str(data.size))
             is_first_iteration = 0
             counter = first_zero_crossing
         
@@ -115,18 +101,14 @@ try:
         zero_indices = data.get_zero_indices()[:21]
 
         # Check zero_indices for plausibility (45 Hz > f < 55Hz)
-        if any(np.diff(zero_indices) > 22222): # < 45 Hz
-            dataLogger.error('Distance between two zero crossings: '+str(max(np.diff(zero_indices))))
-        if any(np.diff(zero_indices) > 18181): # > 55 Hz
-            dataLogger.error('Distance between two zero crossings: '+str(min(np.diff(zero_indices))))
+        if any(np.diff(zero_indices) > 11111): # < 45 Hz
+            pqLogger.error('Distance between two zero crossings: '+str(max(np.diff(zero_indices))))
+        if any(np.diff(zero_indices) < 9090): # > 55 Hz
+            pqLogger.error('Distance between two zero crossings: '+str(min(np.diff(zero_indices))))
 
-        dataLogger.debug('Cutting off :'+str(zero_indices[20]))
-        queueLogger.debug('Cutting off:            -'+str(zero_indices[20]))        
+        pqLogger.debug('Cutting off 10 periods containing '+str(zero_indices[20])+' samples')
 
         data_10periods = data.cut_off_front2(zero_indices[20], 20)
-
-
-        queueLogger.debug('Length of current data: '+str(data.size))
 
         # Write last waveform to JSON
         waveform = data_10periods[zero_indices[18]:zero_indices[20]]
@@ -150,8 +132,9 @@ try:
         # Calculate and store frequency for 10 periods
         # =============================================
         frequency_10periods = pq.calculate_frequency_10periods(zero_indices, streaming_sample_interval)
-        dataLogger.debug('Frequency of 10 periods: '+str(frequency_10periods))
-        dataLogger.debug('Mean value of 10 periods: '+str(np.mean(data_10periods)))
+        #print(str(frequency_10periods))
+        pqLogger.debug('Frequency of 10 periods: '+str(frequency_10periods))
+        pqLogger.debug('Mean value of 10 periods: '+str(np.mean(data_10periods)))
 
         # Calculate and store RMS values of 10 periods
         # ============================================
@@ -161,7 +144,7 @@ try:
         rms_10periods_list.append(rms_10periods)
         pq.writeJSON(rms_10periods_list, 1000, 'voltage.json')
 
-        dataLogger.debug('RMS voltage of 10 periods: '+str(rms_10periods))
+        pqLogger.debug('RMS voltage of 10 periods: '+str(rms_10periods))
 
         # Calculate and store harmonics and THD values of 10 periods
         # ==========================================================
@@ -171,7 +154,7 @@ try:
         thd_10periods = pq.calculate_THD(harmonics_10periods, streaming_sample_interval)
         thd_10periods_list.append(thd_10periods)
 
-        dataLogger.debug('THD of 10 periods: '+str(thd_10periods))
+        pqLogger.debug('THD of 10 periods: '+str(thd_10periods))
 
         # Write current harmonics to JSON
         pq.writeJSON([h / harmonics_10periods[0] * 100 for h in harmonics_10periods[1:]],40,'harmonics.json')
@@ -238,7 +221,7 @@ try:
         # =================================
         if (data_10seconds.size > 10*streaming_sample_interval):
             frequency_data = data_10seconds.cut_off_front2(10*streaming_sample_interval)
-            queueLogger.debug('Size frequency_data snippet: '+str(frequency_data.size))
+            pqLogger.debug('Samples in 10 second interval: '+str(frequency_data.size))
             #pq.compare_filter_for_zero_crossings(frequency_data, streaming_sample_interval)
             if PLOTTING:
                 plt.plot(frequency_data)
@@ -249,7 +232,7 @@ try:
             # Write last values to json file
             freq_10seconds_list.append(frequency)
             pq.writeJSON(freq_10seconds_list, 200, 'frequency.json')
-            dataLogger.info(pq.test_frequency(frequency))
+            pqLogger.info(pq.test_frequency(frequency))
 
         # Prepare for 10 min Measurement
         # ==============================
@@ -257,26 +240,25 @@ try:
         # Synchronize data so absolutely nothing is lost
         if (counter >= 600*streaming_sample_interval):
             data.attach_to_front(data_10periods[:(600*streaming_sample_interval-counter)])
-            queueLogger.debug('Length of current data: '+str(data.size))
             is_first_iteration = 1
             
             # Calculate RMS of 10 min
             # =======================
             rms_10min = pq.count_up_values(rms_10periods_list)
             rms_10periods_list = []
-            dataLogger.info(pq.test_rms(rms_10min))
+            pqLogger.info(pq.test_rms(rms_10min))
             
             # Calculate THD of 10 min
             # =======================
             thd_10min = pq.count_up_values(thd_10periods_list)
             thd_10periods_list = []
-            dataLogger.info(pq.test_thd(thd_10min))
+            pqLogger.info(pq.test_thd(thd_10min))
             
             # Calculate Harmonics of 10 min
             # =======================
             harmonics_10min = pq.count_up_values(harmonics_10periods_list)
             harmonics_10periods_list = []
-            dataLogger.info(pq.test_harmonics(harmonics_10min))
+            pqLogger.info(pq.test_harmonics(harmonics_10min))
             
            
         # Calculate flicker of 10 min
@@ -286,7 +268,7 @@ try:
             Pst = pq.calculate_Pst(flicker_data)
             lastPst = Pst
             pst_list.append(Pst)
-            dataLogger.info('Pst: '+str(Pst))
+            pqLogger.info('Pst of last 10m: '+str(Pst))
             
             #pq.writeJSON(pst_list, 200, 'flicker.json')
 
@@ -296,7 +278,7 @@ try:
         if (len(pst_list) == 12):
             Plt = pq.calculate_Plt(pst_list)
             lastPlt = Plt
-            dataLogger.info(pq.test_plt(Plt))
+            pqLogger.info(pq.test_plt(Plt))
 
 #except KeyboardInterrupt:
     #print('Aborting...')
