@@ -26,7 +26,18 @@ class ring_array_global_data():
         #print('zero_indices_to_attach.size : '+str(zero_indices_to_attach.size))
         #print('zero_indices_to_attach'+str(zero_indices_to_attach))
         #print('self.size : '+str(self.size))
+    
+        # Check if zero crossing gets lost in between data and data_to_attach
+        # if one negative and one positive...:
+        if data_to_attach[0] != 0 and np.sign(self.ringBuffer[-1]) == -np.sign(data_to_attach[0]):
+            # ... there should one or sometimes two zero crossings
+            # if not,...:
+            if zero_indices_to_attach[0] > 10 and self.zero_indices[-1] < self.size - 10:
+                # force create zero crossing
+                print('Force Create Zero Crossing')
+                zero_indices_to_attach = np.append(0, zero_indices_to_attach)
 
+        # Check for double zero crossings at the end of data_to_attach caused by bad filtering
         if zero_indices_to_attach.size > 1 and zero_indices_to_attach[-1] - zero_indices_to_attach[-2] < 10:  
             #print('Double ZC at end of data_to_attach')
             zero_indices_to_attach = np.delete(zero_indices_to_attach,-1)
