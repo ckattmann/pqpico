@@ -11,20 +11,39 @@ import logging
 import json
 import psutil
 
+# Initialize Logging
+pqLogger = logging.getLogger('pqLogger')
+filehandler = logging.FileHandler('Logs/pqLog.log')
+streamhandler = logging.StreamHandler()
+
+pqLogger.setLevel(logging.INFO)
+filehandler.setLevel(logging.INFO)
+streamhandler.setLevel(logging.WARNING)
+
+formatterq = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
+filehandler.setFormatter(formatterq)
+streamhandler.setFormatter(formatterq)
+pqLogger.addHandler(filehandler)
+pqLogger.addHandler(streamhandler)
 PLOTTING = 0
 
+# Open Picoscope
+pqLogger.INFO('Opening Picoscope...')
 pico = Picoscope4000.Picoscope4000()
 pico.run_streaming()
+pqLogger.INFO('...done')
 
 parameters = pico.get_parameters()
 streaming_sample_interval = parameters['streaming_sample_interval']
 
+# Set the minimum snippet size that is tested for 10 periods
 min_snippet_length = streaming_sample_interval * 0.5
 
-data = ringarray2(max_size=3000000)
-data_10seconds = ring_array(size=(20*streaming_sample_interval)) 
-data_10min = ring_array(size=5000000)
-rms_half_period = np.array(np.zeros(20))
+# Allocate data arrays & Initialize variables
+data = ringarray2(max_size = 3 * sample_rate)
+data_10seconds = ring_array(max_size = 20 * sample_rate) 
+data_10min = ring_array(size = 5000000)
+rms_half_period = np.zeros(20)
 
 freq_10seconds_list = []
 rms_10periods_list = []
@@ -44,30 +63,18 @@ frequency_10periods = 0
 rms_10periods = 0
 thd_10periods = 0
 measurement_time_string = ''
-#time.sleep(0.5) # Activate when first data is None and first iterations runs with None data, should be fixed
-
-# Initialize Logging
-# ==================
-
-pqLogger = logging.getLogger('pqLogger')
-filehandler = logging.FileHandler('Logs/pqLog.log')
-streamhandler = logging.StreamHandler()
-
-pqLogger.setLevel(logging.INFO)
-filehandler.setLevel(logging.INFO)
-streamhandler.setLevel(logging.WARNING)
-
-formatterq = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
-filehandler.setFormatter(formatterq)
-streamhandler.setFormatter(formatterq)
-pqLogger.addHandler(filehandler)
-pqLogger.addHandler(streamhandler)
 
 start_time = time.time()
 
+# Wait for 10 Minute switch in order to have nice data
+if True:
+    import datetime
+    while datetime.datetime.now().minute % 10 != 0 and datetime.datetime.now().seconds > 2:
+        time.sleep(0.5)
+
+
 # Main PQ Measurement and Calculation loop
 # ========================================
-
 try:
     while True:
         while data.size < min_snippet_length:
@@ -79,11 +86,11 @@ try:
                 snippet_size_list.append(snippet.size)
                 pq.writeJSON(snippet_size_list,1000,'snippetsize.json')
 
+                # Seperate arrays for data for 10 periods and data for 10 seconds
                 data.attach_to_back(snippet)
                 data_10seconds.attach_to_back(snippet)
                 
                 # Prepare data for Flicker calculation
-                # ====================================
                 data_for_10min, first_value = pq.convert_data_to_lower_fs(snippet, streaming_sample_interval+1, first_value)
                 data_10min.attach_to_back(data_for_10min)
 
@@ -92,10 +99,8 @@ try:
                     
         # Cut off everything before the first zero crossing:
         # ==================================================
-        if is_first_iteration:
-            print('ISFIRSTITERATION')
+        if is_first_iteration: #happens every 10 Minutes
             first_zero_crossing = data.cut_off_before_first_zero_crossing()
-            print(str(first_zero_crossing))
             #plt.plot(data.get_data_view())
             #plt.grid(True)
             #plt.show()
@@ -128,11 +133,10 @@ try:
         #data_10periods = data.cut_off_front2(zero_indices[20], 20)
 
         # Write last waveform to JSON
-        waveform = data_10periods[zero_indices[18]:zero_indices[20]]
+        waveform = data_10periods[zero_indices[18]:zero_indices[20]].copy()
         if (waveform[200] < 0):
-            waveform = data_10periods[zero_indices[17]:zero_indices[19]]
-        #waveform = pq.moving_average2(waveform, 25)
-        waveform = waveform[0::20]
+            waveform = data_10periods[zero_indices[17]:zero_indices[19]].copy()
+        waveform = waveform[0::200]
         pq.writeJSON(waveform,2000,'waveform.json')
 
 
@@ -140,11 +144,6 @@ try:
         # ==============================================
         for i in xrange(20):    
             rms_half_period[i] = pq.calculate_rms_half_period(data_10periods[zero_indices[i]:zero_indices[i+1]])
-        if PLOTTING:
-            plt.plot(rms_half_period)
-            plt.title(' Voltage RMS of Half Periods')
-            plt.grid(True)
-            plt.show()
 
         # Calculate and store frequency for 10 periods
         # =============================================
@@ -186,7 +185,7 @@ try:
         hours = measurement_time%(60*60*24) / 60 / 60
         minutes = measurement_time%(60*60) / 60
         seconds = measurement_time % 60
-        measurement_time_string = str(days)+'d, '+str(hours)+'h, '+str(minutes)+'m, '+str(seconds)+'s'
+        measurement_time_string = str(days)+'d '+str(hours)+'h '+str(minutes)+'m '+str(seconds)+'s'
 
         # find min, max and average frequency and voltage
 
