@@ -1,6 +1,7 @@
 import numpy as np
 import PQTools as pq
 import time
+import logging
 
 import matplotlib.pyplot as plt
 
@@ -35,6 +36,7 @@ class ring_array_global_data():
             if zero_indices_to_attach[0] > 10 and self.zero_indices[-1] < self.size - 10:
                 # force create zero crossing
                 print('Force Create Zero Crossing')
+                pqLogger.WARNING('Force created zero crossing between snippets')
                 zero_indices_to_attach = np.append(0, zero_indices_to_attach)
 
         # Check for double zero crossings at the end of data_to_attach caused by bad filtering

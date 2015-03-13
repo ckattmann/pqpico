@@ -239,7 +239,7 @@ try:
         counter += data_10periods.size
         # Synchronize data so absolutely nothing is lost
         if (counter >= 600*streaming_sample_interval):
-            data.attach_to_front(data_10periods[:(600*streaming_sample_interval-counter)])
+            data.attach_to_front(data_10periods[(600*streaming_sample_interval-counter):])
             is_first_iteration = 1
             
             # Calculate RMS of 10 min
