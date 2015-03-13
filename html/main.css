@@ -65,9 +65,11 @@ a:hover {
   height: 350px;
   text-align: left;
   font-size: 30;
+  box-shadow: 6px 6px 6px 3px #CCC;
 }
 .smallbox.hover {
   background-color: yellowgreen;
+  box-shadow: 6px 6px 3px 3px #CCC;
 }
 .statusrow {
   text-align: right;

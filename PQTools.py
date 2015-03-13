@@ -46,7 +46,7 @@ def moving_average(a,n=25):
     ret[n:] = ret[n:] - ret[:-n]
     return np.append(np.zeros(n/2),ret[n-1:]/n)
 
-def moving_average2(values,window=25):
+def moving_average2(values,window=13):
     # window should be odd number
     weights = np.repeat(1.0, window)/window
     #print(str(weights))
@@ -83,14 +83,8 @@ def Lowpass_Filter(data, SAMPLING_RATE):
 # Frequency Calculation
 # =====================
 
-def detect_zero_crossings(data,PLOTTING=False,filter_func='moving_average2'):
-    #data_filtered = Lowpass_Filter(data, SAMPLING_RATE)    
-    #data -= np.mean(data)
-    #data_filtered = moving_average(data)
-    #data_filtered2 = moving_average3(data)
-    modulename = sys.modules[__name__]
-    func = getattr(modulename,filter_func)
-    data_filtered = func(data)
+def detect_zero_crossings(data):
+    data_filtered = moving_average2(data)
     pos = data_filtered > 0
     npos = ~pos
     zero_crossings_raw = ((pos[:-1] & npos[1:]) | (npos[:-1] & pos[1:]))
@@ -101,14 +95,6 @@ def detect_zero_crossings(data,PLOTTING=False,filter_func='moving_average2'):
 
     zero_crossings_combined = (zero_crossings_raw | zero_crossings_raw2).nonzero()[0]
 
-    if PLOTTING:
-        plt.plot(data, 'b') 
-        plt.plot(data_filtered, 'r')
-        #plt.plot(data_filtered2, 'g')
-        #plt.xlim(0, zero_crossings_combined[20])
-        plt.grid(True)
-        plt.plot(zero_crossings_combined,np.zeros(zero_crossings_combined.size),'o')
-        plt.show()
     return zero_crossings_combined
 
 def compare_filter_for_zero_crossings(data, SAMPLING_RATE):
@@ -118,8 +104,8 @@ def compare_filter_for_zero_crossings(data, SAMPLING_RATE):
 
     print('moving_average: '+str(freq1)+', moving_average2: '+str(freq2)+', moving_average3: '+str(freq3))
 
-def calculate_Frequency(data, SAMPLING_RATE, filter_func = 'moving_average3'):        
-    zero_indices = detect_zero_crossings(data,PLOTTING = False, filter_func = filter_func)
+def calculate_Frequency(data, SAMPLING_RATE):        
+    zero_indices = detect_zero_crossings(data)
     #print('Number of zero_crossings_pure: '+str(zero_indices.size))
     if (zero_indices.size % 2 != 0):
         zero_indices = zero_indices[:-1]

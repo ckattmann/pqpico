@@ -2,7 +2,7 @@ import numpy as np
 import PQTools as pq
 import gc
 
-class ring_array():
+class ringarray2():
     def __init__(self, max_size = 2000000):
         self.ringBuffer = np.array(np.zeros(max_size))
         self.max_size = max_size
@@ -27,15 +27,21 @@ class ring_array():
 
     def cut_off_before_first_zero_crossing(self):
         first_zero_index = pq.detect_zero_crossings(self.ringBuffer)[0]
+        print('First detected zero_index: '+str(first_zero_index))
         self.ringBuffer[:self.size - first_zero_index] = self.ringBuffer[first_zero_index:self.size]
+        print('First value of new data  : '+str(self.ringBuffer[0]))
         self.size = self.size - first_zero_index
+        return first_zero_index
 
     def cut_off_10periods(self):
         zero_indices = pq.detect_zero_crossings(self.ringBuffer)[:21]
         data_10periods = self.ringBuffer[:zero_indices[-1]]
-
+        
         self.ringBuffer[:self.size - zero_indices[-1]] = self.ringBuffer[zero_indices[-1]:self.size]
         self.size = self.size - zero_indices[-1]
+
+        #print('Last Value of data_10periods : '+str(data_10periods[-1]))
+        print('First Value of ringBuffer    :'+str(self.ringBuffer[-1]))
         return data_10periods, zero_indices
 
     def attach_to_front(self, data_to_attach):
@@ -48,10 +54,11 @@ class ring_array():
 
     def check_buffer_overflow(self,size_to_attach):
         while self.size + size_to_attach > self.max_size:
+            print('==Reallocating Buffer to '+str(self.max_size * 1.7)+'==')
             # Allocate new buffer, 1.7 times bigger than the old one
             self.max_size *= 1.7 # if this resolves to float no problem, np.zeros can handle it
             newRingBuffer = np.array(np.zeros(self.max_size))
             newRingBuffer[:self.size] = self.ringBuffer[:self.size]
             self.ringBuffer = newRingBuffer
             # Manually call garbage collection, does this make sense?
-            gc.collect()
+            #gc.collect()

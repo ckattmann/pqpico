@@ -6,6 +6,7 @@ import sys
 import os
 import matplotlib.pyplot as plt
 from ringarray import ring_array, ring_array_global_data
+from RingArray2 import ringarray2
 import logging
 import json
 import psutil
@@ -18,9 +19,9 @@ pico.run_streaming()
 parameters = pico.get_parameters()
 streaming_sample_interval = parameters['streaming_sample_interval']
 
-min_snippet_length = streaming_sample_interval/2
+min_snippet_length = streaming_sample_interval * 0.21
 
-data = ring_array_global_data(size=3000000)
+data = ringarray2(max_size=3000000)
 data_10seconds = ring_array(size=(20*streaming_sample_interval)) 
 data_10min = ring_array(size=5000000)
 rms_half_period = np.array(np.zeros(20))
@@ -88,17 +89,15 @@ try:
         # Cut off everything before the first zero crossing:
         # ==================================================           
         if is_first_iteration:
-            first_zero_crossing = data.get_zero_indices()[0]
-            pqLogger.debug('Cut off '+str(first_zero_crossing)+' values before first zero crossing') 
-            data.cut_off_front2(first_zero_crossing, 0)
-            pqLogger.debug('Length of current data: '+str(data.size))
+            first_zero_crossing = data.cut_off_before_first_zero_crossing()
             is_first_iteration = 0
             counter = first_zero_crossing
         
         # Find 10 periods
         # ===============
         number_of_10periods += 1
-        zero_indices = data.get_zero_indices()[:21]
+        data_10periods, zero_indices = data.cut_off_10periods()
+        #zero_indices = data.get_zero_indices()[:21]
 
         # Check zero_indices for plausibility (45 Hz > f < 55Hz)
         if any(np.diff(zero_indices) > 11111): # < 45 Hz
@@ -108,7 +107,7 @@ try:
 
         pqLogger.debug('Cutting off 10 periods containing '+str(zero_indices[20])+' samples')
 
-        data_10periods = data.cut_off_front2(zero_indices[20], 20)
+        #data_10periods = data.cut_off_front2(zero_indices[20], 20)
 
         # Write last waveform to JSON
         waveform = data_10periods[zero_indices[18]:zero_indices[20]]
@@ -283,8 +282,14 @@ try:
 #except KeyboardInterrupt:
     #print('Aborting...')
 
+except Exception as e:
+    print(str(type(e)))
+    print(str(sys.exc_info()[:]))
+    raise(sys.exc_info()[1])
+    raise
 
 finally:
+
     # Write one last JSON including death flag
     infoDict = {'measurement_alive':0, 
                 'samplingrate':streaming_sample_interval, 
