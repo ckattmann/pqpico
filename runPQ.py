@@ -19,7 +19,7 @@ pico.run_streaming()
 parameters = pico.get_parameters()
 streaming_sample_interval = parameters['streaming_sample_interval']
 
-min_snippet_length = streaming_sample_interval * 0.21
+min_snippet_length = streaming_sample_interval * 0.5
 
 data = ringarray2(max_size=3000000)
 data_10seconds = ring_array(size=(20*streaming_sample_interval)) 
@@ -40,6 +40,10 @@ is_first_iteration = 1
 is_first_10periods = 1
 lastPst = 0
 lastPlt = 0
+frequency_10periods = 0
+rms_10periods = 0
+thd_10periods = 0
+measurement_time_string = ''
 #time.sleep(0.5) # Activate when first data is None and first iterations runs with None data, should be fixed
 
 # Initialize Logging
@@ -87,16 +91,30 @@ try:
                 pqLogger.debug('Length of current data: '+str(data.size))
                     
         # Cut off everything before the first zero crossing:
-        # ==================================================           
+        # ==================================================
         if is_first_iteration:
+            print('ISFIRSTITERATION')
             first_zero_crossing = data.cut_off_before_first_zero_crossing()
+            print(str(first_zero_crossing))
+            #plt.plot(data.get_data_view())
+            #plt.grid(True)
+            #plt.show()
             is_first_iteration = 0
             counter = first_zero_crossing
         
         # Find 10 periods
         # ===============
         number_of_10periods += 1
-        data_10periods, zero_indices = data.cut_off_10periods()
+
+        if any(np.diff(data.get_data_view()) > 500):
+            print('Error')
+            plt.plot(data.get_data_view())
+            plt.grid(True)
+            plt.show()
+
+        data_10periods, zero_indices = data.cut_off_10periods2()
+        data_10periods_backup = data_10periods.copy()
+
         #zero_indices = data.get_zero_indices()[:21]
 
         # Check zero_indices for plausibility (45 Hz > f < 55Hz)
@@ -113,7 +131,7 @@ try:
         waveform = data_10periods[zero_indices[18]:zero_indices[20]]
         if (waveform[200] < 0):
             waveform = data_10periods[zero_indices[17]:zero_indices[19]]
-        waveform = pq.moving_average2(waveform, 25)
+        #waveform = pq.moving_average2(waveform, 25)
         waveform = waveform[0::20]
         pq.writeJSON(waveform,2000,'waveform.json')
 
@@ -236,9 +254,20 @@ try:
         # Prepare for 10 min Measurement
         # ==============================
         counter += data_10periods.size
+        print(' + '+str(data_10periods.size))
+        print(str(counter))
+        if not np.array_equal(data_10periods, data_10periods_backup):
+            pqLog.CRITICAL('data_10periods was changed')
         # Synchronize data so absolutely nothing is lost
-        if (counter >= 600*streaming_sample_interval):
-            data.attach_to_front(data_10periods[(600*streaming_sample_interval-counter):])
+        if (counter >= 6*streaming_sample_interval):
+            #plt.plot(data_10periods[(6*streaming_sample_interval-counter):])
+            #plt.show()
+            #plt.plot(data.get_data_view())
+            #plt.show()
+            data.attach_to_front(data_10periods[(6*streaming_sample_interval-counter):])
+            print(str(6*streaming_sample_interval-counter))
+            #plt.plot(data.get_data_view())
+            #plt.show()
             is_first_iteration = 1
             
             # Calculate RMS of 10 min
@@ -262,7 +291,7 @@ try:
            
         # Calculate flicker of 10 min
         # ===========================
-        if (data_10min.size > 2400000):
+        if (data_10min.size > 10*60*4000):
             flicker_data = data_10min.cut_off_front2(600*streaming_sample_interval/250)
             Pst = pq.calculate_Pst(flicker_data)
             lastPst = Pst
@@ -282,11 +311,11 @@ try:
 #except KeyboardInterrupt:
     #print('Aborting...')
 
-except Exception as e:
-    print(str(type(e)))
-    print(str(sys.exc_info()[:]))
-    raise(sys.exc_info()[1])
-    raise
+#except Exception as e:
+    #print(str(type(e)))
+    #print(str(sys.exc_info()[:]))
+    #raise(sys.exc_info()[1])
+    #raise
 
 finally:
 

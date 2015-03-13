@@ -12,6 +12,7 @@ import scipy.signal as signal
 import sys, os
 import json
 import scipy.fftpack as fftpack
+from scipy import signal
 
 ##########------------------------Konstanten-------------------------##########
 
@@ -30,16 +31,6 @@ y = np.array(np.zeros(1500))
 
 # Filters
 # =======
-
-def moving_average3(a,n=25):
-    ret = np.cumsum(a,dtype=float)
-    ret_begin = ret[:n:2]/np.arange(1,n+1,2)
-    ret_end = np.cumsum(a[-n/2:], dtype=float)
-    ret_end = (ret_end[-1]+ret_end[0]-ret_end)/np.arange(n,0,-2)    
-    ret[n/2+1:-n/2+1] = (ret[n:] - ret[:-n])/n
-    ret[:n/2+1] = ret_begin
-    ret[-(n/2+1):] = ret_end
-    return ret
 
 def moving_average(a,n=25):
     ret = np.cumsum(a,dtype=float)
@@ -60,6 +51,28 @@ def moving_average2(values,window=13):
     new_values = np.append(new_values,values[-1]+np.cumsum(np.diff(values[-(window/2+1):]))[::1])
     
     smas = np.convolve(new_values, weights, 'same')
+    smas = smas[window/2:-window/2+1]
+    smas[0] = values[0]
+    smas[-1] = values[-1]
+    return  smas# as a numpy array
+
+def moving_average3(a,n=25):
+    ret = np.cumsum(a,dtype=float)
+    ret_begin = ret[:n:2]/np.arange(1,n+1,2)
+    ret_end = np.cumsum(a[-n/2:], dtype=float)
+    ret_end = (ret_end[-1]+ret_end[0]-ret_end)/np.arange(n,0,-2)    
+    ret[n/2+1:-n/2+1] = (ret[n:] - ret[:-n])/n
+    ret[:n/2+1] = ret_begin
+    ret[-(n/2+1):] = ret_end
+    return ret
+
+def moving_average4(values,window=13):
+    # window should be odd number
+    weights = np.repeat(1.0, window)/window
+    new_values = np.append(values[0]-np.cumsum(np.diff(values[:window/2+1]))[::-1],values)
+    new_values = np.append(new_values,values[-1]+np.cumsum(np.diff(values[-(window/2+1):]))[::1])
+    
+    smas = signal.fftconvolve(new_values, weights, 'same')
     smas = smas[window/2:-window/2+1]
     smas[0] = values[0]
     smas[-1] = values[-1]
