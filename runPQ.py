@@ -47,6 +47,7 @@ rms_half_period = np.zeros(20)
 
 freq_10seconds_list = []
 rms_10periods_list = []
+rms_heatmap_list = []
 thd_10periods_list = []
 harmonics_10periods_list = []
 pst_list = []
@@ -71,7 +72,6 @@ if True:
     import datetime
     while datetime.datetime.now().minute % 10 != 0 and datetime.datetime.now().seconds > 2:
         time.sleep(0.5)
-
 
 # Main PQ Measurement and Calculation loop
 # ========================================
@@ -101,11 +101,13 @@ try:
         # ==================================================
         if is_first_iteration: #happens every 10 Minutes
             first_zero_crossing = data.cut_off_before_first_zero_crossing()
-            #plt.plot(data.get_data_view())
-            #plt.grid(True)
-            #plt.show()
             is_first_iteration = 0
             counter = first_zero_crossing
+            
+            ten_minute_number = datetime.datetime.now().hour*6 + datetime.datetime.now().minute / 10
+            if ten_minute_number == 0:
+                day_number += 1
+                # This fails when you start a measurement between 00:00 and 00:10 :(
         
         # Find 10 periods
         # ===============
@@ -118,9 +120,8 @@ try:
             plt.show()
 
         data_10periods, zero_indices = data.cut_off_10periods2()
+        # Save a backup for debugging (consistency check)
         data_10periods_backup = data_10periods.copy()
-
-        #zero_indices = data.get_zero_indices()[:21]
 
         # Check zero_indices for plausibility (45 Hz > f < 55Hz)
         if any(np.diff(zero_indices) > 11111): # < 45 Hz
@@ -274,6 +275,10 @@ try:
             rms_10min = pq.count_up_values(rms_10periods_list)
             rms_10periods_list = []
             pqLogger.info(pq.test_rms(rms_10min))
+
+            # Write data for heatmap
+            rms_heatmap_list = rms_heatmap_list.append([day_number, ten_minute_number, rms_10min])
+            pq.writeJSON(rms_heatmap_list, 14400, 'rmsHeatmap.json')
             
             # Calculate THD of 10 min
             # =======================

@@ -1,5 +1,5 @@
 import numpy as np
-from .. import RingArray2 as ra
+import RingArray2 as ra
 
 r = ra.ringarray2(10)
 

@@ -144,6 +144,10 @@ tr td{
   padding-bottom: 10px;
 }
 
+.rmsHeatmap {
+  height: 100%;
+}
+
 .statusOK {
   text-align: center;
   letter-spacing: 2;
