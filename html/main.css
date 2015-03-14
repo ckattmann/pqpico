@@ -8,6 +8,9 @@ body {
 :focus {
   outline: 0;
 }
+hr {
+  margin: 10px;
+}
 div#header {
   background-color: #445566;
   height: 31px;
@@ -65,10 +68,13 @@ a:hover {
   height: 350px;
   text-align: left;
   font-size: 30;
-  box-shadow: 6px 6px 6px 3px #CCC;
 }
-.smallbox.hover {
-  box-shadow: 6px 6px 3px 3px #CCC;
+.smallbox:not(.graphbox) {
+   box-shadow: 1px 1px 6px 3px #CCC;
+}
+.smallbox:hover {
+  box-shadow: 6px 6px 3px 3px #EEE;
+  box-shadow: inset 0 0 5px #EEE;
 }
 .statusrow {
   text-align: right;
@@ -144,8 +150,8 @@ tr td{
   padding-bottom: 10px;
 }
 
-.rmsHeatmap {
-  height: 100%;
+.heatmap {
+  margin-bottom: 30px;
 }
 
 .statusOK {

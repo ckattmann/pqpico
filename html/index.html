@@ -8,6 +8,7 @@
 </head>
 
 <body>
+<!-- Headerbar -->
 <div id='header'>
     <ul>
         <li class='menupoint'><a class='menulink linkOverview' href="" onclick="return false;">Übersicht</a></li>
@@ -16,19 +17,12 @@
         <li class='menupoint'><a class='menulink linkVoltage' href="" onclick="return false;">Spannung</a></li>
         <li class='menupoint'><a class='menulink linkHarmonics' href="" onclick="return false;">Harmonische</a></li>
         <li class='menupoint'><a class='menulink linkFlicker' href="" onclick="return false;">Flicker</a></li>
-        <li class='menupoint'><a class='menulink linkRMSheatmap' href="" onclick="return false;">Heatmap</a></li>
+        <!-- <li class='menupoint'><a class='menulink linkRMSheatmap' href="" onclick="return false;">Heatmap</a></li> -->
     </ul>
 </div>
 
 <div class='container'>
-    <!-- Big Boxes for main graphs -->
-    <div class='box bigbox voltageGraph'></div>
-    <div class='box bigbox frequencyGraph'></div>
-    <div class='box bigbox harmonicsGraph'></div>
-    <div class='box bigbox flickerGraph'></div>
-    <div class='box bigbox heatmap rmsHeatmap'></div>
-    <div class='box bigbox heatmap freqHeatmap'></div>
-    <!-- Smaller info boxes below main graph -->
+<!-- Smaller info boxes below main graph -->
     <div class='box smallbox snippetsizeBox'></div>
     <div class='box smallbox statusBox'>
         Status
@@ -113,14 +107,28 @@
     <div class='box smallbox en50160Box'>
         EN 50160
     </div>
-    <div class='box smallbox waveBox'>
+    <div class='box smallbox graphbox waveBox'>
         Waveform
     </div>
-    <div class='box smallbox thdBox'>
+    <div class='box smallbox graphbox thdBox'>
         THD
     </div>
-</div>
 
+    <div class='box heading headinggraphs'></div> 
+
+<!-- Big Boxes for main graphs -->
+    <div class='box bigbox voltageGraph'></div>
+    <div class='box bigbox frequencyGraph'></div>
+    <div class='box bigbox harmonicsGraph'></div>
+    <div class='box bigbox flickerGraph'></div>
+
+    <div class='box heading headingheatmaps'></div> 
+
+<!-- Heatmaps -->
+    <div class='box bigbox heatmap rmsHeatmap'></div>
+    <div class='box bigbox heatmap freqHeatmap'></div>
+
+</div>
 <!-- Footer Bar -->
 <div class="graybar bottom">
     <ul id="footer">
@@ -207,9 +215,9 @@ jQuery(document).ready(function($) {
         }).hide();
 
         $('.rmsHeatmap').highcharts({
-            chart: {type: 'heatmap', inverted: true, marginTop: 40, marginBottom: 40},
-            title: {text: 'RMS Spannung'},
-            xAxis: {min:0, categories:[]},
+            chart: {type: 'heatmap', inverted: true, marginTop: 40, marginBottom: 40, style: {fontFamily: 'Roboto'}},
+            title: {text: 'Heatmap Tage'},
+            //xAxis: {min:0, categories:[]},
             yAxis: {min:0, max:143, title: null, labels:{formatter: function() {return this.value/6+':00'}}, tickPositions: [0,36,72,108,144]},
             colorAxis: {min:220, max:240, stops: [[0, '#3060cf'],[0.5, '#fffbbc'],[0.9, '#c4463a'],[1, '#c4463a']],},
             legend: {align:'right', layout:'vertical', margin:10, verticalAlign:'middle', y:25, symbolHeight:360},
@@ -218,11 +226,12 @@ jQuery(document).ready(function($) {
         }).hide();
 
         $('.freqHeatmap').highcharts({
-            chart: {type: 'heatmap', inverted: true, marginTop: 40, marginBottom: 40},
-            title: {text: 'Frequenz'},
-            xAxis: {min:0, max:24 ,categories:[]},
-            yAxis: {min:0, max:360, title: null, labels:{formatter: function() {return this.value/6+':00'}}, tickPositions: [0,36,72,108,144]},
-            colorAxis: {min:49.8, max:50.2, stops: [[0, '#3060cf'],[0.5, '#fffbbc'],[0.9, '#c4463a'],[1, '#c4463a']],},
+            chart: {type: 'heatmap', inverted: true, marginTop: 40, marginBottom: 50, style: {fontFamily: 'Roboto'}},
+            plotOptions: { series: {marker: {enabled: false}, stickyTracking:false}},
+            title: {text: 'Heatmap Stunden'},
+            xAxis: {min:0, max:23 ,categories:[]},
+            yAxis: {min:0, max:360, title: null, labels:{formatter: function() {return ':'+this.value/6}}, tickPositions: [0,90,180,270,360]},
+            colorAxis: {min:49.9, max:50.1, stops: [[0, '#3060cf'],[0.5, '#fffbbc'],[0.9, '#c4463a'],[1, '#c4463a']],},
             legend: {align:'right', layout:'vertical', margin:10, verticalAlign:'top', y:25, symbolHeight:360},
             tooltip: {formatter: function () {return this.point.value+' Hz';}},
             series: [{name: 'Frequenz', borderWidth:0, data: [], dataLabels: {enabled: false}}]
@@ -252,7 +261,7 @@ jQuery(document).ready(function($) {
             $('.snippetsizeBox').show();
 
             var snippetsizeGraph = $('.snippetsizeBox').highcharts();
-            updateGraph(snippetsizeGraph,'jsondata/snippetsize.json','Snippet Size');
+            updateGraph(snippetsizeGraph,'jsondata/snippetsize.json','Snippet Size',1000);
 
         });
         $('.linkFrequency').click(function() {
@@ -260,18 +269,26 @@ jQuery(document).ready(function($) {
             $('.linkFrequency').addClass('selected');
             $('.freqBox').show();
             $('.frequencyGraph').show();
+            $('.freqHeatmap').show();
 
             var frequencyGraph = $('.frequencyGraph').highcharts();
-            updateGraph(frequencyGraph,'jsondata/frequency.json','Frequenz');
+            updateGraph(frequencyGraph,'jsondata/frequency.json','Frequenz',10*1000);
+
+            var freqHeatmap = $('.freqHeatmap').highcharts();
+            updateGraph(freqHeatmap, 'jsondata/freqHeatmap.json','Frequenz',10 * 1000);
         });
         $('.linkVoltage').click(function() {
             clearView();
             $('.linkVoltage').addClass('selected');
             $('.voltageGraph').show();
-            $('.voltBox').fadeIn(200);
+            $('.voltBox').show();
+            $('.rmsHeatmap').show();
 
             var voltageGraph = $('.voltageGraph').highcharts();
-            updateGraph(voltageGraph,'jsondata/voltage.json','Spannung');
+            updateGraph(voltageGraph,'jsondata/voltage.json','Spannung',10*60*1000);
+
+            var rmsHeatmap = $('.rmsHeatmap').highcharts();
+            updateGraph(rmsHeatmap, 'jsondata/rmsHeatmap.json','Spannung RMS',60000);
         });
         $('.linkHarmonics').click(function() {
             clearView();
@@ -282,13 +299,13 @@ jQuery(document).ready(function($) {
             $('.thdBox').show();
 
             var harmonicsGraph = $('.harmonicsGraph').highcharts();
-            updateGraph(harmonicsGraph, 'jsondata/harmonics.json', 'Harmonische');
+            updateGraph(harmonicsGraph, 'jsondata/harmonics.json', 'Harmonische',1000);
 
             var waveGraph = $('.waveBox').highcharts();
-            updateGraph(waveGraph, 'jsondata/waveform.json','Spannung');
+            updateGraph(waveGraph, 'jsondata/waveform.json','Spannung',1000);
 
             var thdGraph = $('.thdBox').highcharts();
-            updateGraph(thdGraph, 'jsondata/thd.json','THD');
+            updateGraph(thdGraph, 'jsondata/thd.json','THD',1000);
         });
         $('.linkFlicker').click(function() {
             clearView();
@@ -300,17 +317,17 @@ jQuery(document).ready(function($) {
             $('.rmsHeatmap').show()
 
             var rmsHeatmap = $('.rmsHeatmap').highcharts();
-            updateGraph(rmsHeatmap, 'jsondata/rmsHeatmap.json','',60000);
+            updateGraph(rmsHeatmap, 'jsondata/rmsHeatmap.json','Heatmap',1000);
         }); 
         $('.linkfreqheatmap').click(function() {
             clearView();
             $('.freqHeatmap').show()
 
-            var rmsHeatmap = $('.freqHeatmap').highcharts();
-            updateGraph(freqHeatmap, 'jsondata/freqHeatmap.json','',60000);
+            var freqHeatmap = $('.freqHeatmap').highcharts();
+            updateGraph(freqHeatmap, 'jsondata/freqHeatmap.json','Heatmap',1000);
         });
 
-        function updateGraph(chart,pathString,nameString, timeout=1000) {
+        function updateGraph(chart,pathString,nameString, timeout) {
             chart.series[0].remove();
             chart.addSeries({name: nameString, data:[] });
             function updateGraphRepeater() {
@@ -352,7 +369,7 @@ jQuery(document).ready(function($) {
                 }
                     
             });
-            setTimeout(updateInfo,1000);
+            setTimeout(updateInfo,200);
         };
         updateInfo();
 

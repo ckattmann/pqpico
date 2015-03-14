@@ -67,8 +67,7 @@ class ringarray2():
         return data_10periods, zero_indices
 
     def attach_to_front(self, data_to_attach):
-        print(str(data_to_attach.size))
-        #self.check_buffer_overflow(data_to_attach.size)
+        self.check_buffer_overflow(data_to_attach.size)
         # Move current ringBuffer content out of the way
         self.ringBuffer[data_to_attach.size : data_to_attach.size + self.size] = self.ringBuffer[:self.size]
         self.size += data_to_attach.size
@@ -90,7 +89,6 @@ class ringarray2():
     # Helper Functions:
     def plot_ringBuffer(self):
         import matplotlib.pyplot as plt
-
         plt.plot(self.ringBuffer[:self.size])
         plt.grid()
         plt.show()
