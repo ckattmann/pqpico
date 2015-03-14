@@ -65,6 +65,7 @@ a:hover {
   height: 350px;
   text-align: left;
   font-size: 30;
+}
 .smallbox:not(.graphbox) {
    box-shadow: 1px 1px 6px 3px #CCC;
 }
