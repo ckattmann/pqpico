@@ -137,8 +137,7 @@ try:
         waveform = data_10periods[zero_indices[18]:zero_indices[20]].copy()
         if (waveform[200] < 0):
             waveform = data_10periods[zero_indices[17]:zero_indices[19]].copy()
-        waveform = waveform[0::200]
-        pq.writeJSON(waveform,2000,'waveform.json')
+        pq.writeJSON(waveform[0::200],100,'waveform.json')
 
 
         # Calculate and store RMS values of half periods 
@@ -149,7 +148,6 @@ try:
         # Calculate and store frequency for 10 periods
         # =============================================
         frequency_10periods = pq.calculate_frequency_10periods(zero_indices, streaming_sample_interval)
-        #print(str(frequency_10periods))
         pqLogger.debug('Frequency of 10 periods: '+str(frequency_10periods))
         pqLogger.debug('Mean value of 10 periods: '+str(np.mean(data_10periods)))
 
@@ -216,20 +214,20 @@ try:
                     'disk':round(psutil.disk_usage('/')[3],1),
                     'measurement_time': measurement_time_string,
                     # Frequency Info
-                    'currentFreq': round(frequency_10periods,3),
-                    'freqmin': round(min_freq,3),
-                    'freqmax': round(max_freq,3),
-                    'freqavrg': round(avrg_freq,3),
+                    'currentFreq': ':.3f'.format(frequency_10periods),
+                    'freqmin': ':.3f'.format(min_freq),
+                    'freqmax': ':.3f'.format(max_freq),
+                    'freqavrg': ':.3f'.format(avrg_freq),
                     # Voltage Info
-                    'currentVoltage': round(rms_10periods,2),
-                    'voltmin': round(min_volt,3),
-                    'voltmax': round(max_volt,3),
-                    'voltavrg': round(avrg_volt,3),
+                    'currentVoltage': ':.2f'.format(rms_10periods),
+                    'voltmin': ':.2f'.format(min_volt),
+                    'voltmax': ':.2f'.format(max_volt),
+                    'voltavrg': ':.2f'.format(avrg_volt),
                     # Harmonics Info
-                    'currentTHD': round(thd_10periods,2),
+                    'currentTHD': ':.3f'.format(thd_10periods),
                     # Flicker Info
-                    'lastPst': round(lastPst,2),
-                    'lastPlt': round(lastPlt,2)}
+                    'lastPst': ':.2f'.format(lastPst),
+                    'lastPlt': ':.2f'.format(lastPlt)}
         with open(os.path.join('html','jsondata','info.json'),'wb') as f:
             f.write(json.dumps(infoDict))
 

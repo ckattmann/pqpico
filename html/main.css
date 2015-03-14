@@ -54,6 +54,7 @@ a:hover {
   float: left;
   padding: 0;
   position: relative;
+
 }
 .smallbox {
   padding: 10px;
@@ -65,10 +66,10 @@ a:hover {
   height: 350px;
   text-align: left;
   font-size: 30;
-  box-shadow: 6px 6px 6px 3px #CCC;
+  box-shadow: 2px 2px 6px 3px #EEE;
 }
 .smallbox.hover {
-  box-shadow: 6px 6px 3px 3px #CCC;
+  box-shadow: 6px 6px 3px 3px #AAA;
 }
 .statusrow {
   text-align: right;
