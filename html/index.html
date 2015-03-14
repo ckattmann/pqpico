@@ -22,25 +22,14 @@
 
 <div class='container'>
     <!-- Big Boxes for main graphs -->
-    <div class='box bigbox voltageGraph'>
-        
-    </div>
-    <div class='box bigbox frequencyGraph'>
-        
-    </div>
-    <div class='box bigbox harmonicsGraph'>
-        
-    </div>
-    <div class='box bigbox flickerGraph'>
-        
-    </div>
-    <div class='box bigbox rmsHeatmap'>
-        
-    </div>
+    <div class='box bigbox voltageGraph'></div>
+    <div class='box bigbox frequencyGraph'></div>
+    <div class='box bigbox harmonicsGraph'></div>
+    <div class='box bigbox flickerGraph'></div>
+    <div class='box bigbox heatmap rmsHeatmap'></div>
+    <div class='box bigbox heatmap freqHeatmap'></div>
     <!-- Smaller info boxes below main graph -->
-    <div class='box smallbox snippetsizeBox'>
-
-    </div>
+    <div class='box smallbox snippetsizeBox'></div>
     <div class='box smallbox statusBox'>
         Status
         <div class='mainValue statusOK'>Messung aktiv</div>
@@ -151,7 +140,7 @@ jQuery(document).ready(function($) {
         // Initialize Graphs
         $('.snippetsizeBox').highcharts({
             chart: {animation: false,zoomType: 'x', style: {fontFamily: 'Roboto'}},
-            plotOptions: { series: {color: '#FF3005', marker: {enabled: false}}},
+            plotOptions: { series: {color: '#FF3005', marker: {enabled: false}, stickyTracking:false}},
             title: {text: 'Microseconds for Computation'},
             subtitle: {text: '10 Perioden-Mittelwerte'},
             yAxis: {min:0},
@@ -183,7 +172,7 @@ jQuery(document).ready(function($) {
 
         $('.harmonicsGraph').highcharts({
             chart: {animation: true, type: 'column', style: {fontFamily: 'Roboto'}},
-            plotOptions: { series: {color: '#08417C', marker: {enabled: false}, dataLabels: {enabled: true, style: {fontWeight: 'normal'}, color: 'gray'}}},
+            plotOptions: { series: {color: '#08417C', marker: {enabled: false}, dataLabels: {enabled: true, style: {fontWeight: 'normal'}, color: 'gray'}, stickyTracking:false}},
             title: {text: 'Harmonische / % (50 Hz)'},
             subtitle: {text: '10 Perioden-Mittelwerte'},
             xAxis: { categories: ['2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40']},
@@ -219,13 +208,24 @@ jQuery(document).ready(function($) {
 
         $('.rmsHeatmap').highcharts({
             chart: {type: 'heatmap', inverted: true, marginTop: 40, marginBottom: 40},
-            title: {text: 'RMS Spannung 1 Woche'},
+            title: {text: 'RMS Spannung'},
             xAxis: {min:0, categories:[]},
-            yAxis: {min:0, max:144, title: null, labels:{formatter: function() {return this.value/6+':00'}}, tickPositions: [0,36,72,108,144]},
+            yAxis: {min:0, max:143, title: null, labels:{formatter: function() {return this.value/6+':00'}}, tickPositions: [0,36,72,108,144]},
             colorAxis: {min:220, max:240, stops: [[0, '#3060cf'],[0.5, '#fffbbc'],[0.9, '#c4463a'],[1, '#c4463a']],},
-            legend: {align:'right', layout:'vertical', margin:10, verticalAlign:'top', y:25, symbolHeight:360},
+            legend: {align:'right', layout:'vertical', margin:10, verticalAlign:'middle', y:25, symbolHeight:360},
             tooltip: {formatter: function () {return this.point.value+' V';}},
             series: [{name: 'RMS Voltage', borderWidth:0, data: [], dataLabels: {enabled: false}}]
+        }).hide();
+
+        $('.freqHeatmap').highcharts({
+            chart: {type: 'heatmap', inverted: true, marginTop: 40, marginBottom: 40},
+            title: {text: 'Frequenz'},
+            xAxis: {min:0, max:24 ,categories:[]},
+            yAxis: {min:0, max:360, title: null, labels:{formatter: function() {return this.value/6+':00'}}, tickPositions: [0,36,72,108,144]},
+            colorAxis: {min:49.8, max:50.2, stops: [[0, '#3060cf'],[0.5, '#fffbbc'],[0.9, '#c4463a'],[1, '#c4463a']],},
+            legend: {align:'right', layout:'vertical', margin:10, verticalAlign:'top', y:25, symbolHeight:360},
+            tooltip: {formatter: function () {return this.point.value+' Hz';}},
+            series: [{name: 'Frequenz', borderWidth:0, data: [], dataLabels: {enabled: false}}]
         }).hide();
 
         function clearView() {
@@ -298,8 +298,16 @@ jQuery(document).ready(function($) {
         $('.linkRMSheatmap').click(function() {
             clearView();
             $('.rmsHeatmap').show()
+
             var rmsHeatmap = $('.rmsHeatmap').highcharts();
             updateGraph(rmsHeatmap, 'jsondata/rmsHeatmap.json','',60000);
+        }); 
+        $('.linkfreqheatmap').click(function() {
+            clearView();
+            $('.freqHeatmap').show()
+
+            var rmsHeatmap = $('.freqHeatmap').highcharts();
+            updateGraph(freqHeatmap, 'jsondata/freqHeatmap.json','',60000);
         });
 
         function updateGraph(chart,pathString,nameString, timeout=1000) {

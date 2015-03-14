@@ -250,6 +250,11 @@ try:
             freq_10seconds_list.append(frequency)
             pq.writeJSON(freq_10seconds_list, 200, 'frequency.json')
             pqLogger.info(pq.test_frequency(frequency))
+            # write to freqHeatmap.json
+            freq_heatmap_list.append([ten_second_number % 360, ten_second_number, frequency])
+            pq.writeJSON(freq_heatmap_list, 8640, 'freqHeatmap.json')
+            ten_second_number =+ 1
+
 
         # Prepare for 10 min Measurement
         # ==============================
@@ -277,7 +282,7 @@ try:
             pqLogger.info(pq.test_rms(rms_10min))
 
             # Write data for heatmap
-            rms_heatmap_list = rms_heatmap_list.append([day_number, ten_minute_number, rms_10min])
+            rms_heatmap_list.append([day_number, ten_minute_number, rms_10min])
             pq.writeJSON(rms_heatmap_list, 14400, 'rmsHeatmap.json')
             
             # Calculate THD of 10 min
