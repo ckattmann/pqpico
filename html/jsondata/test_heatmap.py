@@ -9,7 +9,7 @@ def writeJSON(array, size, filename):
 rms_heatmap_list = []
 print(rms_heatmap_list)
 
-for day_number in xrange(50):
+for day_number in xrange(6):
     for ten_minute_number in xrange(144):
         rms_heatmap_list.append([day_number, ten_minute_number, random.randint(220,240)])
 

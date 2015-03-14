@@ -220,7 +220,7 @@ jQuery(document).ready(function($) {
         $('.rmsHeatmap').highcharts({
             chart: {type: 'heatmap', inverted: true, marginTop: 40, marginBottom: 40},
             title: {text: 'RMS Spannung 1 Woche'},
-            xAxis: {min:0, categories: ['Alexander', 'Marie', 'Maximilian', 'Sophia', 'Lukas', 'Maria', 'Leon', 'Anna', 'Tim', 'Laura']},
+            xAxis: {min:0, categories:[]},
             yAxis: {min:0, max:144, title: null, labels:{formatter: function() {return this.value/6+':00'}}, tickPositions: [0,36,72,108,144]},
             colorAxis: {min:220, max:240, stops: [[0, '#3060cf'],[0.5, '#fffbbc'],[0.9, '#c4463a'],[1, '#c4463a']],},
             legend: {align:'right', layout:'vertical', margin:10, verticalAlign:'top', y:25, symbolHeight:360},
