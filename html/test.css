@@ -1,0 +1,15 @@
+
+.container {
+  //width: -moz-fit-content;
+  //margin:auto;
+  text-align: center;
+}
+
+.box {
+  width:200px;
+  height: 200px;
+  display: inline-block;
+  background-color: #456;
+  border:2px solid red;
+  margin: 50px;
+}

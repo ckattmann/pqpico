@@ -256,6 +256,7 @@ try:
             ten_second_number += 1
             if ten_second_number == 360:
                 ten_second_number = 0
+                hour_number += 1
 
 
         # Prepare for 10 min Measurement
