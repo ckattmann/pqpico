@@ -18,6 +18,10 @@ div#header {
   z-index: 999;
   width: 100%;
   top: 0;
+  right:0;
+  left:0;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 div#header ul {
@@ -76,11 +80,11 @@ a:hover {
   font-size: 30px;
 }
 .smallbox:not(.graphbox) {
-   //box-shadow: 1px 1px 6px 3px #CCC;
+   //box-shadow: 1px 1px 12px 3px #CCC;
 }
-.smallbox:hover {
-  box-shadow: 6px 6px 3px 3px #EEE;
-  box-shadow: inset 0px 0px 5px #EEE;
+.smallbox:not(.graphbox):hover {
+   box-shadow: 1px 1px 12px 3px #CCC;
+  //box-shadow: inset 0px 0px 5px #EEE;
 }
 .statusrow {
   text-align: right;
@@ -180,8 +184,9 @@ tr td{
 div.graybar {
     background-color: #445566;
     text-align: center;
-    min-width: 100%;
+    //min-width: 100%;
     height: 31px;
+  overflow:hidden;
 }
 
 ul#footer {
@@ -204,6 +209,9 @@ ul#footer li {
 div.bottom {
     position: fixed;
     bottom: 0px;
+  left:0px;
+  right:0px;
+  overflow:hidden;
 }
 
 ul#footer li a.selected{
