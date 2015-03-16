@@ -103,6 +103,7 @@ $RECYCLE.BIN/
 # Data Files
 Data/
 *.npy
+*.json
 
 # Vim Swap Files
 *.swp
