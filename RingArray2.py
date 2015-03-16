@@ -90,5 +90,5 @@ class ringarray2():
     def plot_ringBuffer(self):
         import matplotlib.pyplot as plt
         plt.plot(self.ringBuffer[:self.size])
-        plt.grid()
+        plt.grid(True)
         plt.show()

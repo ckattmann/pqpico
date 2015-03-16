@@ -2,26 +2,31 @@ body {
   padding: 0;
   margin: 0;
   font-family: Roboto, monospace;
-  letter-spacing: 1;
-  font-size: 16;
+  letter-spacing: 2px;
+  font-size: 16px;
 }
 :focus {
   outline: 0;
 }
-hr {
-  margin: 10px;
-}
 div#header {
   background-color: #445566;
   height: 31px;
-  padding: 0;
-  margin: 0;
+  padding: 0px;
+  margin: 0px;
   text-align: center;
+  position: fixed;
+  z-index: 999;
+  width: 100%;
+  top: 0;
+  right:0;
+  left:0;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 div#header ul {
-  margin: 0;
-  padding: 6;
+  margin: 0px;
+  padding: 6px;
 }
 .selected {
   color: orangered;
@@ -31,8 +36,8 @@ li.menupoint {
   display: inline;
   padding: 20px;
   color:white;
-  letter-spacing: 2;
-  font-size: 16; 
+  letter-spacing: 2px;
+  font-size: 16px; 
 }
 
 a {
@@ -46,41 +51,45 @@ a:hover {
 .container {
   border: 0;
   margin: 0;
+  margin-top: 50px;
   padding: 0;
-  height: 90%;
-  text-align: justify;
+  text-align: center;
 }
+.smallboxcontainer {
+  margin: auto;
+  text-align: center;
+}
+
 
 .box {
   margin: 0;
   border: 0;
-  float: left;
   padding: 0;
-  position: relative;
 }
 .smallbox {
+  display: inline-block;
+  vertical-align: middle;
   padding: 10px;
   margin: 10px;
   margin-left: 20px;
   margin-top: 20px;
-  width: 30%;
-  min-width: 380px;
+  width: 25%;
+  min-width: 450px;
   height: 350px;
   text-align: left;
-  font-size: 30;
+  font-size: 30px;
 }
 .smallbox:not(.graphbox) {
-   box-shadow: 1px 1px 6px 3px #CCC;
+   //box-shadow: 1px 1px 12px 3px #CCC;
 }
-.smallbox:hover {
-  box-shadow: 6px 6px 3px 3px #EEE;
-  box-shadow: inset 0 0 5px #EEE;
+.smallbox:not(.graphbox):hover {
+   box-shadow: 1px 1px 12px 3px #CCC;
+  //box-shadow: inset 0px 0px 5px #EEE;
 }
 .statusrow {
   text-align: right;
 }
 .statusBox {
-  clear: left;
   background-color: #5d92c6;
 }
 .table {
@@ -95,43 +104,29 @@ tr td{
   border-collapse: collapse;
   border-left: 0;
   border-right: 0;
+  font-size: 16px;
 }
 .lastRow {
   border-bottom: 0;
 }
-
 .statusvalue {
   text-align: right;
   padding: 5px;
 }
-
 .voltBox {
   background-color: #92b6da;
 }
-
 .lower {
   vertical-align: -1px;
   font-size: 40%
 }
-
 .lowest {
   vertical-align: -4px;
   font-size: 20%
 }
-
 .freqBox {
   background-color: #77a4d0;
 }
-
-.mainValue {
-  text-align: center;
-  font-size: 50;
-  letter-spacing: 5;
-  padding: 5px;
-  margin-bottom: 10px;
-  margin-top: 10px;
-}
-
 .harmBox {
   background-color: #adc8e4;
 }
@@ -141,13 +136,39 @@ tr td{
 .en50160Box {
   background-color: #e3edf6;
 }
+.envalue {
+  background-color: #7AC859;
+  border-radius: 10px;
+  padding:3px;
+}
+
+.mainValue {
+  text-align: center;
+  font-size: 50px;
+  letter-spacing: 5px;
+  padding: 5px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.heading {
+  border: 0px solid black;
+  margin: 10px;
+  margin-top: 50px;
+  width: 100%;
+  text-align: center;
+  font-size: 24px;
+  height: 50px;
+}
 
 .bigbox {
   display: inline-block;
-  clear: right;
-  width: 100%;
-  height: 50%;
+  width: 90%;
+  height: 500px;
   padding-bottom: 10px;
+  padding-right: 40px;
+  margin: 20px;
+  //float: unset;
 }
 
 .heatmap {
@@ -156,21 +177,22 @@ tr td{
 
 .statusOK {
   text-align: center;
-  letter-spacing: 2;
-  font-size: 45;
+  letter-spacing: 2px;
+  font-size: 45px;
 }
 
 div.graybar {
     background-color: #445566;
     text-align: center;
-    min-width: 100%;
+    //min-width: 100%;
     height: 31px;
+  overflow:hidden;
 }
 
 ul#footer {
     padding: 6px;
     position: relative;
-    margin: 0;
+    margin: 0px;
 }
 
 ul#footer li {
@@ -180,13 +202,16 @@ ul#footer li {
     margin-right: 30px;
     text-decoration: none;
     font-family: monospace;
-    letter-spacing: 2;
+    letter-spacing: 2px;
     color: #FEFEFE;
 }
 
 div.bottom {
     position: fixed;
-    bottom: 0;
+    bottom: 0px;
+  left:0px;
+  right:0px;
+  overflow:hidden;
 }
 
 ul#footer li a.selected{
