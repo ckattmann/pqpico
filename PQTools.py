@@ -10,9 +10,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.signal as signal
 import sys, os
-import json
+import json, csv
 import scipy.fftpack as fftpack
 from scipy import signal
+import logging
+pqLogger = logging.getLogger('pqLogger')
 
 ##########------------------------Konstanten-------------------------##########
 
@@ -211,11 +213,13 @@ def fast_fourier_transformation(data, SAMPLING_RATE, plot_FFT=False):
     #cut off the negativ indices and double the amplitudes
     FFTdata = np.abs(FFTdata[(FFTdata.size/2):])*2
     
-    if (plot_FFT):
+    if (False):
         plt.plot(FFTfrequencys[:FFTdata.size], FFTdata)
         plt.xlabel("f in Hz") # y-Achse beschriefen
         plt.ylabel("FFT") # x-Achse beschriften
-        plt.xlim([0,1500]) # länge der angezeigten x-Achse
+        plt.xlim([8000,500000]) # länge der angezeigten x-Achse
+        plt.grid(True)
+        plt.show()
     
     return FFTdata, FFTfrequencys
         
@@ -462,6 +466,14 @@ def writeJSON(array, size, filename):
     with open(os.path.join('html','jsondata',filename),'wb') as f:
         f.write(json.dumps(valuesdict))
 
+# write value to given csv file
+def writeCSV(value,filename):
+    with open(os.path.join('html','csvdata',filename),'a') as f:
+        csvwriter = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        csvwriter.writerow([value])
+
+#class logtoJSON_handler(logging.Handler):
+    #def __init__(self,        
 
 # Plot functions
 # ==============

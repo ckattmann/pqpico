@@ -22,6 +22,8 @@ filehandler.setLevel(logging.INFO)
 streamhandler.setLevel(logging.INFO)
 
 formatterq = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
+JSONformatterq = logging.Formatter('[%(asctime)s \t %(levelname)s \t %(message)s')
+
 filehandler.setFormatter(formatterq)
 streamhandler.setFormatter(formatterq)
 pqLogger.addHandler(filehandler)
@@ -161,6 +163,7 @@ try:
         pqLogger.debug('Frequency of 10 periods: '+str(frequency_10periods))
         pqLogger.debug('Mean value of 10 periods: '+str(np.mean(data_10periods)))
 
+
         # Calculate and store RMS values of 10 periods
         # ============================================
         rms_10periods = pq.calculate_rms(data_10periods)
@@ -221,20 +224,20 @@ try:
                     'disk':round(psutil.disk_usage('/')[3],1),
                     'measurement_time': measurement_time_string,
                     # Frequency Info
-                    'currentFreq': ':.3f'.format(frequency_10periods),
-                    'freqmin': ':.3f'.format(min_freq),
-                    'freqmax': ':.3f'.format(max_freq),
-                    'freqavrg': ':.3f'.format(avrg_freq),
+                    'currentFreq': '{:.3f}'.format(frequency_10periods),
+                    'freqmin': '{:.3f}'.format(min_freq),
+                    'freqmax': '{:.3f}'.format(max_freq),
+                    'freqavrg': '{:.3f}'.format(avrg_freq),
                     # Voltage Info
-                    'currentVoltage': ':.2f'.format(rms_10periods),
-                    'voltmin': ':.2f'.format(min_volt),
-                    'voltmax': ':.2f'.format(max_volt),
-                    'voltavrg': ':.2f'.format(avrg_volt),
+                    'currentVoltage': '{:.2f}'.format(rms_10periods),
+                    'voltmin': '{:.2f}'.format(min_volt),
+                    'voltmax': '{:.2f}'.format(max_volt),
+                    'voltavrg': '{:.2f}'.format(avrg_volt),
                     # Harmonics Info
-                    'currentTHD': ':.3f'.format(thd_10periods),
+                    'currentTHD': '{:.3f}'.format(thd_10periods),
                     # Flicker Info
-                    'lastPst': ':.2f'.format(lastPst),
-                    'lastPlt': ':.2f'.format(lastPlt)}
+                    'lastPst': '{:.2f}'.format(lastPst),
+                    'lastPlt': '{:.2f}'.format(lastPlt)}
         with open(os.path.join('html','jsondata','info.json'),'wb') as f:
             f.write(json.dumps(infoDict))
 
@@ -245,11 +248,12 @@ try:
             frequency_data = data_10seconds.cut_off_front2(10*sample_rate)
             pqLogger.debug('Samples in 10 second interval: '+str(frequency_data.size))
             frequency = pq.calculate_Frequency(frequency_data, sample_rate)
+
             # Write last values to json file
             freq_10seconds_list.append(frequency)
-            #print(str(len(freq_10seconds_list)))
-            pq.writeJSON(freq_10seconds_list, 200, 'frequency.json')
+            pq.writeJSON(freq_10seconds_list, 2160, 'frequency.json')
             pqLogger.debug(pq.test_frequency(frequency))
+
             # Write to freqHeatmap.json
             freq_heatmap_list.append([hour_number, ten_second_number, frequency])
             pq.writeJSON(freq_heatmap_list, 8640, 'freqHeatmap.json')
@@ -257,6 +261,8 @@ try:
             if ten_second_number == 360:
                 ten_second_number = 0
                 hour_number += 1
+            if hour_number == 24:
+                hour_number = 0
 
 
         # Prepare for 10 min Measurement
@@ -284,6 +290,9 @@ try:
             # Write data for heatmap
             rms_heatmap_list.append([day_number, ten_minute_number, rms_10min])
             pq.writeJSON(rms_heatmap_list, 14400, 'rmsHeatmap.json')
+
+            # Write rms data to csv
+            pq.writeCSV(rms_10min, 'voltage.csv')
             
             # Calculate THD of 10 min
             # =======================

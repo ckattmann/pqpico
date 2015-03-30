@@ -1,6 +1,8 @@
 import numpy as np
 import PQTools as pq
 import gc
+import logging
+pqLogger = logging.getLogger('pqLogger')
 
 class ringarray2():
     def __init__(self, max_size = 2000000):
@@ -77,6 +79,7 @@ class ringarray2():
     def check_buffer_overflow(self,size_to_attach):
         while self.size + size_to_attach > self.max_size:
             print('==Reallocating Buffer to '+str(self.max_size * 1.7)+'==')
+            pqLogger.warning('Reallocating Buffer to '+str(self.max_size * 1.7))
             # Allocate new buffer, 1.7 times bigger than the old one
             self.max_size *= 1.7 # if this resolves to float no problem, np.zeros can handle it
             newRingBuffer = np.zeros(self.max_size)

@@ -141,8 +141,35 @@
     <div style='clear:both'></div>
 </div>
 
+
     <!-- Heading before big graphs -->
     <div class='box heading headinggraphs'></div> 
+
+    <!-- PQ Logs -->
+    <div class='box logs'>
+        <table cellspacing='0' class='table'>
+            <tr>
+                <td>RMS</td>
+                <td>&empty;10min</td>
+                <td class='statusrow'><span class='statusvalue envalue envolt'>100%</span></td>
+            </tr>
+            <tr>
+                <td>Frequenz</td>
+                <td>&empty;10s</td>
+                <td class='statusrow'><span class='statusvalue envalue enfreq'>100%</span></td>
+            </tr>
+            <tr>
+                <td>THD<span class='lower'>U</span></td>
+                <td>&empty;10min</td>
+                <td class='statusrow'><span class='statusvalue envalue enthd'>2%</span></td>
+            </tr>
+            <tr>
+                <td>% Norm</td>
+                <td>% Norm</td>
+                <td class='statusrow'><span class='statusvalue envalue enharm'>unknown</span> %</td>
+            </tr>
+        </table>
+    </div>
 
 <!-- Big Boxes for main graphs -->
     <div class='box bigbox voltageGraph'></div>
@@ -159,6 +186,10 @@
 
     <div style='clear:both; margin-bottom: 50px;'></div>
 
+
+    <div class='box heading heading3'></div> 
+    <div class='box bigbox frequencyGraph_sf'></div>
+
 </div>
 <!-- Footer Bar -->
 <div class="graybar bottom">
@@ -172,6 +203,7 @@
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="jquery.csv-0.71.min.js"></script>
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="http://code.highcharts.com/modules/heatmap.js"></script>
 
@@ -207,7 +239,17 @@ jQuery(document).ready(function($) {
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
             title: {text: ''},
             subtitle: {text: '10 Sekunden-Mittelwerte'},
-            yAxis: {min:49.5, max:50.5, title: {text: 'Frequency / Hz'}},
+            yAxis: {min:49.81, max:50.2, title: {text: 'Frequency / Hz'}},
+            legend: {enabled: false},
+            series: [{data: [] }]
+        }).hide();        
+
+        $('.frequencyGraph_sf').highcharts({
+            chart: {animation: false, zoomType: 'xy', style: {fontFamily: 'Roboto'}},
+            plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
+            title: {text: ''},
+            subtitle: {text: '10 Perioden-Mittelwerte'},
+            yAxis: {min:49.81, max:50.2, title: {text: 'Frequency / Hz'}},
             legend: {enabled: false},
             series: [{data: [] }]
         }).hide();
@@ -255,7 +297,7 @@ jQuery(document).ready(function($) {
             title: {text: ''},
             xAxis: {min:0, categories:[]},
             yAxis: {min:0, max:143, title: null, labels:{formatter: function() {return this.value/6+':00'}}, tickPositions: [0,36,72,108,144]},
-            colorAxis: {min:220, max:240, stops: [[0, '#3060cf'],[0.5, '#fffbbc'],[0.9, '#c4463a'],[1, '#c4463a']],},
+            colorAxis: {min:230, max:240, stops: [[0, '#3060cf'],[0.5, '#fffbbc'],[0.9, '#c4463a'],[1, '#c4463a']],},
             legend: {align:'right', layout:'vertical', margin:10, verticalAlign:'middle', y:25, symbolHeight:360},
             tooltip: {formatter: function () {return this.point.value+' V';}},
             series: [{name: 'RMS Voltage', borderWidth:0, data: [], dataLabels: {enabled: false}}]
@@ -267,7 +309,7 @@ jQuery(document).ready(function($) {
             title: {text: ''},
             xAxis: {min:0, max:23 ,categories:[]},
             yAxis: {min:0, max:360, title: null, labels:{formatter: function() {return ':'+this.value/6}}, tickPositions: [0,90,180,270,360]},
-            colorAxis: {min:49.801, max:50.2, stops: [[0,'#251c55'],[0.4,'#3060cf'],[0.5, '#349b37'],[0.6, '#c9c05e'],[1, '#c4463a']],},
+            colorAxis: {min:49.801, max:50.2, stops: [[0.1,'#251c55'],[0.4,'#3060cf'],[0.5, '#349b37'],[0.6, '#c9c05e'],[0.9, '#c4463a']],},
             legend: {align:'right', layout:'vertical', margin:10, verticalAlign:'top', y:25, symbolHeight:360},
             tooltip: {formatter: function () {return this.point.value+' Hz';}},
             series: [{name: 'Frequenz', borderWidth:0, data: [], dataLabels: {enabled: false}}]
@@ -301,6 +343,8 @@ jQuery(document).ready(function($) {
             $('.linkStatus').addClass('selected');
             $('.statusBox').show();
             $('.snippetsizeBox').show();
+            $('.logs').show();
+            updateLog();
 
             var snippetsizeGraph = $('.snippetsizeBox').highcharts();
             updateGraph(snippetsizeGraph,'jsondata/snippetsize.json','Snippet Size',1000);
@@ -314,12 +358,17 @@ jQuery(document).ready(function($) {
             $('.frequencyGraph').show();
             $('.headingheatmaps').text('Heatmap').show();
             $('.freqHeatmap').show();
+            $('.heading3').text('Frequenz Freitag, 11:00 Uhr bis 13:00 Uhr').show();
+            $('.frequencyGraph_sf').show();
 
             var frequencyGraph = $('.frequencyGraph').highcharts();
             updateGraph(frequencyGraph,'jsondata/frequency.json','Frequenz',10*1000);
 
             var freqHeatmap = $('.freqHeatmap').highcharts();
             updateGraph(freqHeatmap, 'jsondata/freqHeatmap.json','FrequenzHeatmap',10 * 1000);
+
+            var frequencyGraph_sf = $('.frequencyGraph_sf').highcharts();
+            updateGraph(frequencyGraph,'jsondata/freq_sf.json','Frequenz',1000);
         });
         $('.linkVoltage').click(function() {
             clearView();
@@ -327,14 +376,14 @@ jQuery(document).ready(function($) {
             $('.voltBox').show();
             $('.headinggraphs').text('Spannung der letzten 24 Stunden').show();
             $('.voltageGraph').show();
-            $('.headingheatmaps').text('Heatmap Frequenz').show();
+            $('.headingheatmaps').text('Heatmap').show();
             $('.rmsHeatmap').show();
 
             var voltageGraph = $('.voltageGraph').highcharts();
             updateGraph(voltageGraph,'jsondata/voltage.json','Spannung',10*60*1000);
 
             var rmsHeatmap = $('.rmsHeatmap').highcharts();
-            updateGraph(rmsHeatmap, 'jsondata/rmsHeatmap.json','Spannung RMS',60000);
+            updateGraph(rmsHeatmap, 'jsondata/rmsHeatmap.json','Spannung RMS',10*60*1000);
         });
         $('.linkHarmonics').click(function() {
             clearView();
@@ -415,9 +464,16 @@ jQuery(document).ready(function($) {
                 }
                     
             });
+
             setTimeout(updateInfo,200);
         };
         updateInfo();
+        
+        function updateLog() {
+            var logs = $.csv.toObjects(logs/logs);
+            console.log(logs);
+            setTimeout(updateLogs,2000);
+        };
 
 });
 
