@@ -203,7 +203,8 @@
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="jquery.csv-0.71.min.js"></script>
+<!-- <script src="jquery.csv-0.71.min.js"></script> -->
+<script src="papaparse.min.js"></script>
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="http://code.highcharts.com/modules/heatmap.js"></script>
 
@@ -318,12 +319,10 @@ jQuery(document).ready(function($) {
         function clearView() {
             $('.menulink').removeClass('selected');
             $('.box').hide();
-            console.log(timers)
             for (graph in timers) {
                 console.log(graph+' ('+timers[graph]+') cleared');
                 clearTimeout(timers[graph]); }
             timers = new Array();
-            console.log(timers);
         };
         
         // Navigation
@@ -470,9 +469,13 @@ jQuery(document).ready(function($) {
         updateInfo();
         
         function updateLog() {
-            var logs = $.csv.toObjects(logs/logs);
-            console.log(logs);
-            setTimeout(updateLogs,2000);
+            console.log('Running updateLog');
+            $.ajax({url:'/Logs/pqLog.log', dataType:'text'}).done(function(csv){
+                console.log(csv);
+                var logs = Papa.parse(csv)
+                console.log(logs);
+                setTimeout(updateLog,2000);
+            });
         };
 
 });

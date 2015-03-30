@@ -14,7 +14,7 @@ import datetime
 
 # Initialize Logging
 pqLogger = logging.getLogger('pqLogger')
-filehandler = logging.FileHandler('Logs/pqLog.log')
+filehandler = logging.FileHandler('html/Logs/pqLog.log')
 streamhandler = logging.StreamHandler()
 
 pqLogger.setLevel(logging.INFO)
@@ -22,9 +22,9 @@ filehandler.setLevel(logging.INFO)
 streamhandler.setLevel(logging.INFO)
 
 formatterq = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
-JSONformatterq = logging.Formatter('[%(asctime)s \t %(levelname)s \t %(message)s')
+csvformatterq = logging.Formatter('"%(asctime)s","%(levelname)s","%(message)s"')
 
-filehandler.setFormatter(formatterq)
+filehandler.setFormatter(csvformatterq)
 streamhandler.setFormatter(formatterq)
 pqLogger.addHandler(filehandler)
 pqLogger.addHandler(streamhandler)
@@ -311,7 +311,7 @@ try:
         # ===========================
         if (data_10min.size > 10*60*4000):
             flicker_data = data_10min.cut_off_front2(600*sample_rate/250)
-            Pst = pq.calculate_Pst(flicker_data)
+            Pst, maxs = pq.calculate_Pst(flicker_data)
             lastPst = Pst
             pst_list.append(Pst)
             pqLogger.debug('Pst of last 10m: '+str(Pst))
