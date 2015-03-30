@@ -434,7 +434,7 @@ def calculate_Pst(data):
         plt.grid(True)
         plt.axis([0, 35, 0, 1])
         
-    return P_st 
+    return P_st, max(s)
     
 def calculate_Plt(Pst_list):
     P_lt = np.power(np.sum(np.power(Pst_list,3)/12),1./3)
@@ -474,6 +474,55 @@ def writeCSV(value,filename):
 
 #class logtoJSON_handler(logging.Handler):
     #def __init__(self,        
+
+def accuracy_of_flicker_measurement(fs=4000):
+    f_F = np.array([0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.8,9.5,10.0,10.5,11.0,11.5,12.0,13.0,14.0,15.0,16.0,17.0,18.0,19.0,20.0,21.0,22.0,23.0,24.0])
+    time = 600 #sec.
+    t = np.linspace(0,600,time*fs)
+	
+    # Spannungsverarbeitung Eingang-Ausgang:
+    # ======================================
+
+        # sinusförmige Spannungsänderung:
+        # ===============================
+
+    print('Start der Normprüfung mit sinusförmiger Spannungsänderung:\n')
+    deltaU = np.array([2.34,1.432,1.08,0.882,0.754,0.654,0.568,0.5,0.446,0.398,0.36,0.328,0.3,0.28,0.266,0.256,0.250,0.254,0.26,0.27,0.282,0.296,0.312,0.348,0.388,0.432,0.48,0.53,0.584,0.64,0.7,0.76,0.824,0.89,0.962])    
+    for i in range(deltaU.size):
+        ampl_flicker = deltaU[i]/200*np.sin(2*np.pi*f_F[i]*t)    
+        data = (1+ampl_flicker)*np.sin(2*np.pi*50*t)
+        print('P_F5,max : {0:9.6f} |Flickerfrequenz [Hz] : {1:4.1f} |Spannungsschwankung [%]: {2:4.3f}'.format(calculate_Pst(data)[1],f_F[i],deltaU[i]))
+
+        # rechteckförmige Spannungsänderung:
+        # ==================================
+
+    print('\nStart der Normprüfung mit rechteckförmiger Spannungsänderung:\n')
+    deltaU = np.array([0.514,0.471,0.432,0.401,0.374,0.355,0.345,0.333,0.316,0.293,0.269,0.249,0.231,0.217,0.207,0.201,0.199,0.200,0.205,0.213,0.223,0.234,0.246,0.275,0.307,0.344,0.367,0.413,0.452,0.498,0.546,0.586,0.604,0.680,0.743])    
+    for i in range(deltaU.size):
+        ampl_flicker = deltaU[i]/200*signal.square(2*np.pi*f_F[i]*t)   
+        data = (1+ampl_flicker)*np.sin(2*np.pi*50*t)
+        print('P_F5,max : {0:9.6f} |Flickerfrequenz [Hz] : {1:4.1f} |Spannungsschwankung [%]: {2:4.3f}'.format(calculate_Pst(data)[1],f_F[i],deltaU[i]))
+
+    # Klassierer-tester:
+    # ==================
+
+    print('\nStart der Normprüfung für Klassierer mit sinusförmiger Spannungsänderung:\n')
+    aenderung = np.array([1,2,7,39,110,1620],float) #r/sec
+    deltaU = np.array([2.72,2.21,1.46,0.905,0.725,0.402])
+    for i in range(deltaU.size):
+        ampl_flicker = deltaU[i]/200*signal.square(2*np.pi*aenderung[i]/120*t)
+        data = (1+ampl_flicker)*np.sin(2*np.pi*50*t)
+        print('P_st : {0:9.6f} |Änderungsrate [r/min^-1] : {1:4.0f} |Spannungsschwankung [%]: {2:4.3f}'.format(calculate_Pst(data)[0],aenderung[i],deltaU[i]))
+
+    print('\nFaktor 5 Prüfung (5-fache Schwankung = 5-facher Flickerwert):\n')
+    aenderung = np.array([1,2,7,39,110,1620],float) #r/sec
+    deltaU = np.array([2.72,2.21,1.46,0.905,0.725,0.402])*5
+    for i in range(deltaU.size):
+        ampl_flicker = deltaU[i]/200*signal.square(2*np.pi*aenderung[i]/120*t)
+        data = (1+ampl_flicker)*np.sin(2*np.pi*50*t)
+        print('P_st : {0:9.6f} |Änderungsrate [r/min^-1] : {1:4.0f} |Spannungsschwankung [%]: {2:4.3f}'.format(calculate_Pst(data)[0],aenderung[i],deltaU[i]))
+
+    print('\nNormprüfung wurde erfolgreich beendet!')
 
 # Plot functions
 # ==============
