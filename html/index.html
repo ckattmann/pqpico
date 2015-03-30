@@ -147,28 +147,7 @@
 
     <!-- PQ Logs -->
     <div class='box logs'>
-        <table cellspacing='0' class='table'>
-            <tr>
-                <td>RMS</td>
-                <td>&empty;10min</td>
-                <td class='statusrow'><span class='statusvalue envalue envolt'>100%</span></td>
-            </tr>
-            <tr>
-                <td>Frequenz</td>
-                <td>&empty;10s</td>
-                <td class='statusrow'><span class='statusvalue envalue enfreq'>100%</span></td>
-            </tr>
-            <tr>
-                <td>THD<span class='lower'>U</span></td>
-                <td>&empty;10min</td>
-                <td class='statusrow'><span class='statusvalue envalue enthd'>2%</span></td>
-            </tr>
-            <tr>
-                <td>% Norm</td>
-                <td>% Norm</td>
-                <td class='statusrow'><span class='statusvalue envalue enharm'>unknown</span> %</td>
-            </tr>
-        </table>
+        <table cellspacing='0' class='table logtable'></table>
     </div>
 
 <!-- Big Boxes for main graphs -->
@@ -467,13 +446,19 @@ jQuery(document).ready(function($) {
             setTimeout(updateInfo,200);
         };
         updateInfo();
+
+        numberOfLogs = 0;
         
         function updateLog() {
             console.log('Running updateLog');
-            $.ajax({url:'/Logs/pqLog.log', dataType:'text'}).done(function(csv){
-                console.log(csv);
-                var logs = Papa.parse(csv)
-                console.log(logs);
+            $.ajax({url:'Logs/pqLog.log', dataType:'text'}).done(function(text){
+                lines = text.split('\n');
+                for (var line = numberOfLogs; line < lines.length-1; line++) {
+                    entries = lines[line].split('\t');
+                    $('.logs .logtable').append('<tr><td>'+entries[0].trim()+'</td><td>'+entries[1].trim()+'</td><td>'+entries[2].trim()+'</td></tr>');
+                    numberOfLogs++;
+                    console.log(entries[0].trim())
+                }
                 setTimeout(updateLog,2000);
             });
         };
