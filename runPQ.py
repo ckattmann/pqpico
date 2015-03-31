@@ -13,6 +13,7 @@ import psutil
 import datetime
 
 # Initialize Logging
+os.remove('html/Logs/pqLog.log')
 pqLogger = logging.getLogger('pqLogger')
 filehandler = logging.FileHandler('html/Logs/pqLog.log')
 streamhandler = logging.StreamHandler()
@@ -22,9 +23,7 @@ filehandler.setLevel(logging.INFO)
 streamhandler.setLevel(logging.INFO)
 
 formatterq = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
-csvformatterq = logging.Formatter('"%(asctime)s","%(levelname)s","%(message)s"')
-
-filehandler.setFormatter(csvformatterq)
+filehandler.setFormatter(formatterq)
 streamhandler.setFormatter(formatterq)
 pqLogger.addHandler(filehandler)
 pqLogger.addHandler(streamhandler)
