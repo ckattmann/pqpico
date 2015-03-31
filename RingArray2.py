@@ -47,25 +47,16 @@ class ringarray2():
         return data_10periods, zero_indices
 
     def cut_off_10periods2(self):
-        #self.plot_ringBuffer()
         zero_indices = np.zeros(21)
         zc = 0
         for i in xrange(1,21): 
-            #print(str(i)+' : '+str(zero_indices))
             dataslice = self.ringBuffer[zero_indices[i-1] + 9500 : zero_indices[i-1] + 10500]
-            #print('dataslice border lower: '+str(zero_indices[i-1] + 9500))
-            #print('dataslice border upper: '+str(zero_indices[i-1] + 10500))
-            #print(str(pq.detect_zero_crossings(dataslice)))
             zero_indices[i] = zero_indices[i-1] + pq.detect_zero_crossings(dataslice) + 9500
-        #print('ZC: '+str(zero_indices))
         data_10periods = self.ringBuffer[:zero_indices[-1]].copy()
         
         self.ringBuffer[:self.size - zero_indices[-1]] = self.ringBuffer[zero_indices[-1]:self.size]
         self.size = self.size - zero_indices[-1]
 
-        #print('Last Value of data_10periods2 : '+str(data_10periods[-1]))
-        #print('First Value of ringBuffer    :'+str(self.ringBuffer[-1]))
-        #print('Zero_indices : '+str(zero_indices))
         return data_10periods, zero_indices
 
     def attach_to_front(self, data_to_attach):
