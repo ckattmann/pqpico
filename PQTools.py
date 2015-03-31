@@ -112,13 +112,6 @@ def detect_zero_crossings(data):
 
     return zero_crossings_combined
 
-def compare_filter_for_zero_crossings(data, SAMPLING_RATE):
-    freq1 = calculate_Frequency(SAMPLING_RATE, data, filter_func = 'moving_average')
-    freq2 = calculate_Frequency(SAMPLING_RATE, data, filter_func = 'moving_average2')
-    freq3 = calculate_Frequency(SAMPLING_RATE, data, filter_func = 'moving_average3')
-
-    print('moving_average: '+str(freq1)+', moving_average2: '+str(freq2)+', moving_average3: '+str(freq3))
-
 def calculate_Frequency(data, SAMPLING_RATE):        
     zero_indices = detect_zero_crossings(data)
     #print('Number of zero_crossings_pure: '+str(zero_indices.size))
