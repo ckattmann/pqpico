@@ -451,10 +451,16 @@ def count_up_values(values_list):
 
 # writes the last n values of array into the given json file
 def writeJSON(array, size, filename):
-    try:
+    # Graphs: round value to 3 decimals
+    if isinstance(array[0],float):
         array = [round(x,3) for x in array[-size:]]
-    except: 
-        pass
+    # Heatmaps[x,y,value]: round value to 2 decimals
+    elif isinstance(array[0],list):
+        if len(array[0]) == 3: # Definitely a Heatmap
+            for i in array:
+                i[2] = round(i[2],3)
+    else:
+        array = array[-size:]
     valuesdict = {'values': array}
     with open(os.path.join('html','jsondata',filename),'wb') as f:
         f.write(json.dumps(valuesdict))
