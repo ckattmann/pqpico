@@ -1,0 +1,14 @@
+2015-03-31 12:37:41,580 	 INFO 	 Opening Picoscope...
+2015-03-31 12:37:45,910 	 INFO 	 ...done
+2015-03-31 12:37:45,966 	 INFO 	 Starting Measurement
+Traceback (most recent call last):
+  File "runPQ.py", line 105, in <module>
+    data_for_10min, first_value = pq.convert_data_to_lower_fs(snippet, sample_rate+1, first_value)
+  File "/home/kipfer/pqpico/ringarray.py", line 153, in attach_to_back
+    self.ringBuffer[self.size:self.size + data_to_attach.size] = data_to_attach
+ValueError: could not broadcast input array from shape (3408) into shape (0)
+
+Buffer von data_10min gesprengt? -> Buffergröße loggen
+Warum ist Zielshape genau 0 -> Zufall?
+======================================================================================================
+
