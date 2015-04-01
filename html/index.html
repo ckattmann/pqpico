@@ -100,7 +100,7 @@
     </div>
     <div class='box smallbox harmBox'>
         Harmonische
-        <div class='mainValue'><span class='thd'>2,00</span> %<span class=lower>THD</span><span class='lower lowest'>U</span></div>
+        <div class='mainValue'><span class='thd'>-</span> %<span class=lower>THD</span><span class='lower lowest'>U</span></div>
     </div>
     <div class='box smallbox flickerBox'>
         Flicker
@@ -143,7 +143,7 @@
 
 
     <!-- Heading before big graphs -->
-    <div class='box heading headinggraphs'></div> 
+    <div class='box heading heading1'></div> 
 
     <!-- PQ Logs -->
     <div class='box logs'>
@@ -268,6 +268,8 @@ jQuery(document).ready(function($) {
         $('.flickerGraph').highcharts({
             chart: {animation: false, style: {fontFamily: 'Roboto'}},
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}}},
+            title: {text: ''},
+            yAxis: {min:0, max:1.2, title: {text: 'Flicker'}},
             legend: {enabled: false},
             series: [{data: [] }]
         }).hide();
@@ -332,27 +334,22 @@ jQuery(document).ready(function($) {
             clearView();
             $('.linkFrequency').addClass('selected');
             $('.freqBox').show();
-            $('.headinggraphs').text('Frequenz der letzten 6 Stunden').show();
+            $('.heading1').text('Frequenz der letzten 6 Stunden').show();
             $('.frequencyGraph').show();
             $('.headingheatmaps').text('Heatmap').show();
             $('.freqHeatmap').show();
-            $('.heading3').text('Frequenz Freitag, 11:00 Uhr bis 13:00 Uhr').show();
-            $('.frequencyGraph_sf').show();
 
             var frequencyGraph = $('.frequencyGraph').highcharts();
             updateGraph(frequencyGraph,'jsondata/frequency.json','Frequenz',10*1000);
 
             var freqHeatmap = $('.freqHeatmap').highcharts();
             updateGraph(freqHeatmap, 'jsondata/freqHeatmap.json','FrequenzHeatmap',10 * 1000);
-
-            var frequencyGraph_sf = $('.frequencyGraph_sf').highcharts();
-            updateGraph(frequencyGraph,'jsondata/freq_sf.json','Frequenz',1000);
         });
         $('.linkVoltage').click(function() {
             clearView();
             $('.linkVoltage').addClass('selected');
             $('.voltBox').show();
-            $('.headinggraphs').text('Spannung der letzten 24 Stunden').show();
+            $('.heading1').text('Spannung der letzten 24 Stunden').show();
             $('.voltageGraph').show();
             $('.headingheatmaps').text('Heatmap').show();
             $('.rmsHeatmap').show();
@@ -383,7 +380,11 @@ jQuery(document).ready(function($) {
         $('.linkFlicker').click(function() {
             clearView();
             $('.flickerBox').show();
-            var mainchart = $('.flickerGraph').highcharts();
+            $('.heading1').text('Flicker der letzten 6 Stunden').show();
+            $('.flickerGraph').show();
+
+            var flickerGraph = $('.flickerGraph').highcharts();
+            updateGraph(flickerGraph, 'jsondata/flicker.json','Flicker',60*1000);
         });
         $('.linkRMSheatmap').click(function() {
             clearView();
