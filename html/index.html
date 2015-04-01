@@ -239,7 +239,7 @@ jQuery(document).ready(function($) {
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}, dataLabels: {enabled: true, style: {fontWeight: 'normal'}, color: 'gray'}, stickyTracking:false}},
             title: {text: 'Harmonische'},
             subtitle: {text: '10 Perioden-Mittelwerte'},
-            yAxis: {title: {text: 'Amplitude / % von 50 Hz'}},
+            yAxis: {min:0, max:1.5, title: {text: 'Amplitude / % von 50 Hz'}},
             xAxis: { categories: ['2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40']},
             legend: {enabled: false},
             series: [{data: [] }]
