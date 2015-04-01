@@ -124,10 +124,7 @@ try:
         number_of_10periods += 1
 
         if any(np.diff(data.get_data_view()) > 500):
-            print('Error')
-            plt.plot(data.get_data_view())
-            plt.grid(True)
-            plt.show()
+            pqLogger.error('Difference between two consecutive samples greater than 500')
 
         data_10periods, zero_indices = data.cut_off_10periods2()
         # Save a backup for debugging (consistency check)
