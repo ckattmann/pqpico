@@ -44,9 +44,10 @@ min_snippet_length = sample_rate * 0.3
 # Allocate data arrays & Initialize variables
 data = ringarray2(max_size = 3 * sample_rate)
 data_10seconds = ring_array(size = 20 * sample_rate) 
-data_10min = ring_array(size = 5000000)
+data_10min = ringarray2(max_size = 5000000)
 rms_half_period = np.zeros(20)
 
+diff_zero_indices_10seconds = []
 freq_10seconds_list = []
 rms_10periods_list = []
 rms_10min_list = []
@@ -127,6 +128,8 @@ try:
             pqLogger.error('Difference between two consecutive samples greater than 500')
 
         data_10periods, zero_indices = data.cut_off_10periods2()
+        diff_zero_indices_10seconds.append(np.diff(zero_indices))
+
         # Save a backup for debugging (consistency check)
         data_10periods_backup = data_10periods.copy()
 
@@ -306,13 +309,14 @@ try:
         # Calculate flicker of 10 min
         # ===========================
         if (data_10min.size > 10*60*4000):
+            pqLogger.warning('Size of data10min at 10 Minutes: '+str(data_10min.size))
             flicker_data = data_10min.cut_off_front2(600*sample_rate/250)
             Pst, maxs = pq.calculate_Pst(flicker_data)
             lastPst = Pst
             pst_list.append(Pst)
             pqLogger.debug('Pst of last 10m: '+str(Pst))
             
-            #pq.writeJSON(pst_list, 200, 'flicker.json')
+            pq.writeJSON(pst_list, 360, 'flicker.json')
 
 
         # Calculate flicker of 2 hours    
