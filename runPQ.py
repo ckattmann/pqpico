@@ -309,7 +309,7 @@ try:
         # Calculate flicker of 10 min
         # ===========================
         if (data_10min.size > 10*60*4000):
-            pqLogger.warning('Size of data10min at 10 Minutes: '+str(data_10min.size))
+            pqLogger.info('Size of data10min at 10 Minutes: '+str(data_10min.size))
             flicker_data = data_10min.cut_off_front2(600*sample_rate/250)
             Pst, maxs = pq.calculate_Pst(flicker_data)
             lastPst = Pst
