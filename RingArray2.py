@@ -54,8 +54,9 @@ class ringarray2():
             zero_crossings_in_dataslice = pq.detect_zero_crossings(dataslice)
             if zero_crossings_in_dataslice.size > 1:
                 pqLogger.warning('Multiple zero crossings in single dataslice, taking the more plausible one')
+                pqLogger.warning(str(zero_crossings_in_dataslice))
                 zero_crossings_in_dataslice = zero_crossings_in_dataslice[np.abs(zero_crossings_in_dataslice-500).argmin()]
-            zero_indices[i] = zero_indices[i-1] + pq.detect_zero_crossings(dataslice) + 9500
+            zero_indices[i] = zero_indices[i-1] + zero_crossings_in_dataslice + 9500
         data_10periods = self.ringBuffer[:zero_indices[-1]].copy()
         
         self.ringBuffer[:self.size - zero_indices[-1]] = self.ringBuffer[zero_indices[-1]:self.size]
