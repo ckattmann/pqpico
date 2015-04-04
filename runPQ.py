@@ -329,11 +329,32 @@ try:
 #except KeyboardInterrupt:
     #print('Aborting...')
 
-#except Exception as e:
-    #print(str(type(e)))
-    #print(str(sys.exc_info()[:]))
-    #raise(sys.exc_info()[1])
-    #raise
+except Exception, e:
+    locs = locals().copy()
+    pqLogger.CRITICAL('Error: '+str(e))
+
+    with open('.mailinfo','r') as f:
+        mailinfo = f.readlines()
+    mailinfo = [x.strip() for x in mailinfo]
+
+    # Prepare to send Alert Mail
+    s = smtplib.SMTP('smtp.gmail.com')
+    s.ehlo()
+    s.starttls()
+    s.login(mailinfo[0], mailinfo[1])
+
+    # Make a pretty table with local variables
+    x = PrettyTable(['Variable','Content'])
+    x.align['Variable'] + 'l'
+    x.align['Content'] + 'l'
+    x.padding_width = 1
+    for k,v in locs.iteritems():
+        x.add_row([str(k),str(v)])
+    pqLogger.INFO('Sending from '+str(mailinfo[0])+' to '+str(mailinfo[2]))
+    msg = 'From: PQpico\nSubject: Error in PQpico\n\nError in PQpico at ' + str(datetime.datetime.now().strftime('%A %x %X:%f')) +'\n\n'+ str(traceback.format_exc()) + '\n\n' + str(x)
+    for recipient in mailinfo[2:]:
+        s.sendmail(mailinfo[0], recipient, str(msg))
+    s.quit()
 
 finally:
 

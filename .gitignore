@@ -107,3 +107,5 @@ Data/
 
 # Vim Swap Files
 *.swp
+
+.mailinfo
