@@ -11,6 +11,9 @@ import logging
 import json
 import psutil # For Performance Evaluation
 import datetime
+import smtplib
+import prettytable
+import traceback
 
 # Initialize Logging
 os.remove('html/Logs/pqLog.log')
@@ -269,7 +272,7 @@ try:
         counter += data_10periods.size
          
         if not np.array_equal(data_10periods, data_10periods_backup):
-            pqLog.CRITICAL('data_10periods was changed')
+            pqLog.critical('data_10periods was changed')
              
         # Synchronize data so absolutely nothing is lost
         if (counter >= 600*sample_rate):
@@ -331,7 +334,7 @@ try:
 
 except Exception, e:
     locs = locals().copy()
-    pqLogger.CRITICAL('Error: '+str(e))
+    pqLogger.critical('Error: '+str(e))
 
     with open('.mailinfo','r') as f:
         mailinfo = f.readlines()
@@ -344,13 +347,14 @@ except Exception, e:
     s.login(mailinfo[0], mailinfo[1])
 
     # Make a pretty table with local variables
-    x = PrettyTable(['Variable','Content'])
+    x = prettytable.PrettyTable(['Variable','Content'])
     x.align['Variable'] + 'l'
     x.align['Content'] + 'l'
     x.padding_width = 1
     for k,v in locs.iteritems():
         x.add_row([str(k),str(v)])
-    pqLogger.INFO('Sending from '+str(mailinfo[0])+' to '+str(mailinfo[2]))
+    pqLogger.info("\n"+str(x))
+    pqLogger.info('Sending from '+str(mailinfo[0])+' to '+str(mailinfo[2]))
     msg = 'From: PQpico\nSubject: Error in PQpico\n\nError in PQpico at ' + str(datetime.datetime.now().strftime('%A %x %X:%f')) +'\n\n'+ str(traceback.format_exc()) + '\n\n' + str(x)
     for recipient in mailinfo[2:]:
         s.sendmail(mailinfo[0], recipient, str(msg))
