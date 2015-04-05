@@ -337,8 +337,10 @@ except KeyboardInterrupt:
     pqLogger('Aborting after SIGINT')
     try:
         os.remove('.processid')
+    except:
+        pass
 
-except Exception as e:
+except Exception, e:
     locs = locals().copy()
     pqLogger.critical('Error: '+str(e))
 
