@@ -15,6 +15,10 @@ import smtplib
 import prettytable
 import traceback
 
+# Save own PID in .processid to make killing it possible
+with open('.processid','w') as f:
+    f.write(str(os.getpid()))
+
 # Initialize Logging
 os.remove('html/Logs/pqLog.log')
 pqLogger = logging.getLogger('pqLogger')
@@ -184,7 +188,7 @@ try:
         pqLogger.debug('THD of 10 periods: '+str(thd_10periods))
 
         # Write current harmonics to JSON
-        pq.writeJSON([h / harmonics_10periods[0] * 100 for h in harmonics_10periods[1:]],25,'harmonics.json')
+        pq.writeJSON([h / harmonics_10periods[0] * 100 for h in harmonics_10periods[1:]],40,'harmonics.json')
         pq.writeJSON(thd_10periods_list,100,'thd.json')
 
         # Write JSON file about current situation
@@ -377,6 +381,9 @@ finally:
 
     with open(os.path.join('html','jsondata','info.json'),'wb') as f:
         f.write(json.dumps(infoDict))
+        
+    os.remove('.processid')
+
 
     # Stop Sampling and release Picoscope unit
     pico.close_unit()
