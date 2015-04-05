@@ -333,10 +333,12 @@ try:
             lastPlt = Plt
             pqLogger.debug(pq.test_plt(Plt))
 
-#except KeyboardInterrupt:
-    #print('Aborting...')
+except KeyboardInterrupt:
+    pqLogger('Aborting after SIGINT')
+    try:
+        os.remove('.processid')
 
-except Exception, e:
+except Exception as e:
     locs = locals().copy()
     pqLogger.critical('Error: '+str(e))
 
