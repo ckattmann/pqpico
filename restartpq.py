@@ -11,11 +11,9 @@ print('--------------------------------')
 try:
     with open('.processid','r') as f:
         processid = int(f.read().strip())
+    os.kill(processid, signal.SIGINT)
 except IOError:
     print('No file .processid found, assuming runPQ is NOT running...')
-
-try:
-    os.kill(processid, signal.SIGINT)
 except OSError:
     print('Could not kill '+str(processid))
 
