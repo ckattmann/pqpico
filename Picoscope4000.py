@@ -120,12 +120,15 @@ class Picoscope4000:
                 
 
         # load the library
-        if platform.system() == 'Windows':
-            self.lib = ctypes.windll.LoadLibrary(LIBNAME)
-        elif platform.system() == 'Linux':
-            self.lib = ctypes.cdll.LoadLibrary(LIBNAME)
-        else:
-            print('Unknown Platform')
+        try:
+            if platform.system() == 'Windows':
+                self.lib = ctypes.windll.LoadLibrary(LIBNAME)
+            elif platform.system() == 'Linux':
+                self.lib = ctypes.cdll.LoadLibrary(LIBNAME)
+            else:
+                print('Unknown Platform')
+        except OSError:
+            sys.exit('ERROR: Picoscope Drivers not found')
 
         if VERBOSE:
             print(self.__dict__)
@@ -138,10 +141,8 @@ class Picoscope4000:
                 self.lib = ctypes.cdll.LoadLibrary(LIBNAME)
             else:
                 print('Unknown Platform')
-            self.fakeDataMode = False
         except OSError:
-            print('\nNo Picoscope library found, switching to fake data mode\n')
-            self.fakeDataMode = True
+            print('\nNo Picoscope library found, either nor connected or already running\n')
 
         # Open Data Queue
         self.dataqueue = Queue.Queue()
@@ -187,10 +188,6 @@ class Picoscope4000:
         if VERBOSE == 1:
             print('==== open_unit ====')
 
-        # If fake Data is enabled, ignore everything:
-        if self.fakeDataMode:
-            return 0
-    
         # Open Picoscope:
         self.handle = ctypes.c_int16()
         picoStatus = self.lib.ps4000aOpenUnit(ctypes.byref(self.handle),None)
@@ -216,8 +213,6 @@ class Picoscope4000:
             print(' Failed to open oscilloscope')
         elif self.handle.value == 0:
             print(' No oscilloscope found')
-            self.fakeDataMode = True
-            print('\nNo Picoscope found, switching to fake data mode\n')
 
         return self.handle
 
@@ -225,8 +220,6 @@ class Picoscope4000:
         '''close the interface to the unit'''
         if VERBOSE == 1:
             print('==== close_unit ====')
-        if self.fakeDataMode:
-            return
 
         res = self.lib.ps4000aCloseUnit(self.handle.value)
         self.handle = None
@@ -243,10 +236,6 @@ class Picoscope4000:
 
         if VERBOSE:
             print('==== SetChannel ====')
-
-        if self.fakeDataMode:
-            return
-
         try:
             res = self.lib.ps4000aSetChannel(self.handle, channel, enabled, dc, vertrange, analogOffset)
             if channel == PS4000_CHANNEL_A:
@@ -263,9 +252,6 @@ class Picoscope4000:
     def set_data_buffer(self, channel=PS4000_CHANNEL_A, segmentIndex=0, mode=0):
         if VERBOSE:
             print('==== SetDataBuffer ====')
-
-        if self.fakeDataMode:
-            return
 
         bufferlength = self.streaming_buffer_length
         try:
@@ -358,9 +344,6 @@ class Picoscope4000:
         if VERBOSE:
             print('==== RunStreaming ====')
 
-        if self.fakeDataMode:
-            return
-
         #prepareMeasurements
         sampleIntervalTimeUnit = self.streaming_sample_interval_unit
 
@@ -407,9 +390,6 @@ class Picoscope4000:
 
     def get_Timebase(self, timebase=99,noSamples=1000,segmentIndex= 1):
 
-        if self.fakeDataMode:
-            return
-
         try:
             self.timeIntervalNS = ctypes.c_uint(0)
             self.maxSamples = ctypes.c_uint(0)
@@ -424,9 +404,6 @@ class Picoscope4000:
 # Actually retrieve the data on the pc
     def get_streaming_latest_values(self):
         
-        if self.fakeDataMode:
-            return self.enqueue_fake_data()
-
         buffer_callback = self.construct_buffer_callback()
         res = self.lib.ps4000aGetStreamingLatestValues(self.handle, buffer_callback)
         
@@ -441,9 +418,6 @@ class Picoscope4000:
             return None
     
     def stop_sampling(self):
-        if self.fakeDataMode:
-            return
-
         try:
             res = self.lib.ps4000aStop(self.handle)
             if VERBOSE:
@@ -452,14 +426,6 @@ class Picoscope4000:
         finally:
             pass
         return res    
-
-    def enqueue_fake_data(self):
-        if 'self.fakeDataPosition' not in locals():
-            self.fakeDataPosition = np.random.random_integers(0,10000)
-        x = np.linspace(0,np.pi,self.streaming_sample_interval.value)        
-        data = np.sin(50*x)
-        data = np.floor(data*18/50*32768/8)*8
-        self.dataqueue.put(data)
 
 if __name__ == '__main__':
     #try:
