@@ -8,14 +8,16 @@ os.chdir('/home/kipfer/pqpico')
 #1 Kill the old runPQ process
 print('Killing old instance of runPQ...')
 print('--------------------------------')
-with open('.processid','r') as f:
-    processid = int(f.read().strip())
+try:
+    with open('.processid','r') as f:
+        processid = int(f.read().strip())
+except IOError:
+    print('No file .processid found, assuming runPQ is NOT running...')
 
 try:
     os.kill(processid, signal.SIGINT)
 except OSError:
-    print('No file .processid found, assuming runPQ is NOT running...')
-    pass
+    print('Could not kill '+str(processid))
 
 #2 Pull the new code
 print('Pulling new Code from github...')
