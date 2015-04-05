@@ -188,7 +188,7 @@ try:
         pqLogger.debug('THD of 10 periods: '+str(thd_10periods))
 
         # Write current harmonics to JSON
-        pq.writeJSON([h / harmonics_10periods[0] * 100 for h in harmonics_10periods[1:]],40,'harmonics.json')
+        pq.writeJSON([h / harmonics_10periods[0] * 100 for h in harmonics_10periods[1:]],25,'harmonics.json')
         pq.writeJSON(thd_10periods_list,100,'thd.json')
 
         # Write JSON file about current situation
