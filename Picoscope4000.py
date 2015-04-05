@@ -142,7 +142,7 @@ class Picoscope4000:
             else:
                 print('Unknown Platform')
         except OSError:
-            print('\nNo Picoscope library found, either nor connected or already running\n')
+            sys.exit('No Picoscope library found, either nor connected or already running')
 
         # Open Data Queue
         self.dataqueue = Queue.Queue()
