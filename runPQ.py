@@ -382,9 +382,6 @@ finally:
     with open(os.path.join('html','jsondata','info.json'),'wb') as f:
         f.write(json.dumps(infoDict))
         
-    os.remove('.processid')
-
-
     # Stop Sampling and release Picoscope unit
     pico.close_unit()
 
