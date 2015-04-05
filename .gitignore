@@ -109,3 +109,4 @@ Data/
 *.swp
 
 .mailinfo
+.processid
