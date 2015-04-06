@@ -368,6 +368,7 @@ except Exception, e:
     for recipient in mailinfo[2:]:
         s.sendmail(mailinfo[0], recipient, str(msg))
     s.quit()
+    sys.exit('Exiting on error, mail has been sent')
 
 finally:
 
