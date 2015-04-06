@@ -339,6 +339,7 @@ except KeyboardInterrupt:
         os.remove('.processid')
     except:
         pass
+    sys.exit('Aborting...')
 
 except Exception, e:
     locs = locals().copy()
