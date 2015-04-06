@@ -334,7 +334,7 @@ try:
             pqLogger.debug(pq.test_plt(Plt))
 
 except KeyboardInterrupt:
-    pqLogger('Aborting after SIGINT')
+    pqLogger.critical('Aborting after SIGINT')
     try:
         os.remove('.processid')
     except:
