@@ -28,5 +28,5 @@ os.system('git pull')
 #3 Start runpq anew
 print('Starting new instance of runPQ...')
 print('---------------------------------')
-subprocess.Popen('nohup python runPQ.py &',shell=True)
+subprocess.Popen('exec nohup python runPQ.py &',shell=True)
 print('New instance started')
