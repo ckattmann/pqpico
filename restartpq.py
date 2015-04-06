@@ -2,6 +2,7 @@
 
 import os
 import signal
+import subprocess
 
 os.chdir('/home/kipfer/pqpico')
 
@@ -27,4 +28,5 @@ os.system('git pull')
 #3 Start runpq anew
 print('Starting new instance of runPQ...')
 print('---------------------------------')
-os.system('nohup python runPQ.py &')
+subprocess.Popen('nohup python runPQ.py &',shell=True)
+print('New instance started')
