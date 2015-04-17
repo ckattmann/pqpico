@@ -26,7 +26,6 @@
 <div class='container'>
 <div class='smallboxcontainer'> 
 <!-- Smaller info boxes below main graph -->
-    <div class='box smallbox graphbox snippetsizeBox'></div>
     <div class='box smallbox statusBox'>
         Status
         <div class='mainValue statusOK'>Messung aktiv</div>
@@ -138,6 +137,7 @@
     <div class='box smallbox graphbox thdBox'>
         THD
     </div>
+    <div class='box smallbox graphbox snippetsizeBox'></div>
     <div style='clear:both'></div>
 </div>
 
@@ -162,9 +162,9 @@
 <!-- Heatmaps -->
     <div class='box bigbox heatmap rmsHeatmap'></div>
     <div class='box bigbox heatmap freqHeatmap'></div>
+    <div class='box bigbox heatmap harmHeatmap'></div>
 
     <div style='clear:both; margin-bottom: 50px;'></div>
-
 
     <div class='box heading heading3'></div> 
     <div class='box bigbox frequencyGraph_sf'></div>
@@ -239,7 +239,7 @@ jQuery(document).ready(function($) {
             plotOptions: { series: {color: '#08417C', marker: {enabled: false}, dataLabels: {enabled: true, style: {fontWeight: 'normal'}, color: 'gray'}, stickyTracking:false}},
             title: {text: 'Harmonische'},
             subtitle: {text: '10 Perioden-Mittelwerte'},
-            yAxis: {min:0, max:1.5, title: {text: 'Amplitude / % von 50 Hz'}},
+            yAxis: {min:0, max:2.5, title: {text: 'Amplitude / % von 50 Hz'}},
             xAxis: { categories: ['2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40']},
             legend: {enabled: false},
             series: [{data: [] }]
@@ -296,6 +296,19 @@ jQuery(document).ready(function($) {
             tooltip: {formatter: function () {return this.point.value+' Hz';}},
             series: [{name: 'Frequenz', borderWidth:0, data: [], dataLabels: {enabled: false}}]
         }).hide();
+
+        $('.harmHeatmap').highcharts({
+            chart: {type: 'heatmap', inverted: true, marginTop: 10, marginBottom: 50, style: {fontFamily: 'Roboto'}},
+            plotOptions: { series: {marker: {enabled: false}, stickyTracking:false}},
+            title: {text: ''},
+            xAxis: {min:2, max:25 ,categories:[],reversed:false},
+            yAxis: {min:0, max:143, title: null, labels:{formatter: function() {return this.value/6}}, tickPositions: [0,36,72,108,144]},
+            colorAxis: {min:0 , max:2 , stops: [[0,'#349b37'],[0.5, '#c9c05e'],[1, '#c4463a']],},
+            legend: {align:'right', layout:'vertical', margin:10, verticalAlign:'top', y:25, symbolHeight:360},
+            tooltip: {formatter: function () {return this.point.value+' %';}},
+            series: [{name: 'Anteil Harmonische', borderWidth:0, data: [], dataLabels: {enabled: false}}]
+        }).hide();
+
 
         function clearView() {
             $('.menulink').removeClass('selected');
@@ -367,6 +380,8 @@ jQuery(document).ready(function($) {
             $('.harmBox').show();
             $('.waveBox').show();
             $('.thdBox').show();
+            $('.headingheatmaps').text('Heatmap').show();
+            $('.harmHeatmap').show();
 
             var harmonicsGraph = $('.harmonicsGraph').highcharts();
             updateGraph(harmonicsGraph, 'jsondata/harmonics.json', 'Harmonische',1000);
@@ -376,6 +391,9 @@ jQuery(document).ready(function($) {
 
             var thdGraph = $('.thdBox').highcharts();
             updateGraph(thdGraph, 'jsondata/thd.json','THD',1000);
+
+            var harmHeatmap = $('.harmHeatmap').highcharts();
+            updateGraph(harmHeatmap, 'jsondata/harmHeatmap.json','Anteil Harmische',10*60*1000);
         });
         $('.linkFlicker').click(function() {
             clearView();

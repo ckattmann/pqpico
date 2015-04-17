@@ -62,6 +62,8 @@ rms_heatmap_list = []
 freq_heatmap_list = []
 thd_10periods_list = []
 harmonics_10periods_list = []
+harm_heatmap_list = []
+#harmonics_10minutes_list = []
 pst_list = []
 snippet_size_list = []
 
@@ -180,7 +182,8 @@ try:
         # Calculate and store harmonics and THD values of 10 periods
         # ==========================================================
         harmonics_10periods = pq.calculate_harmonics_voltage(data_10periods,sample_rate)
-        harmonics_10periods_list.append(harmonics_10periods)
+        pqLogger.debug(str(harmonics_10periods))
+        harmonics_10periods_list.append([h / harmonics_10periods[0] * 100 for h in harmonics_10periods[1:25]])
 
         thd_10periods = pq.calculate_THD(harmonics_10periods, sample_rate)
         thd_10periods_list.append(thd_10periods)
@@ -310,9 +313,12 @@ try:
             # =======================
             harmonics_10min = pq.count_up_values(harmonics_10periods_list)
             harmonics_10periods_list = []
-            pqLogger.debug(pq.test_harmonics(harmonics_10min))
+            pqLogger.debug(str(harmonics_10min))
+            # Write data for heatmap
+            for harmonic in enumerate(harmonics_10min[:24]):
+                harm_heatmap_list.append([harmonic[0]+2, ten_minute_number, harmonic[1]])
+                pq.writeJSON(harm_heatmap_list, 24*144, 'harmHeatmap.json')
             
-           
         # Calculate flicker of 10 min
         # ===========================
         if (data_10min.size > 10*60*4000):
@@ -324,7 +330,6 @@ try:
             pqLogger.debug('Pst of last 10m: '+str(Pst))
             
             pq.writeJSON(pst_list, 360, 'flicker.json')
-
 
         # Calculate flicker of 2 hours    
         # ============================
@@ -361,7 +366,11 @@ except Exception, e:
     x.align['Content'] + 'l'
     x.padding_width = 1
     for k,v in locs.iteritems():
-        x.add_row([str(k),str(v)])
+        # Reduce size of big numpy arrays to the last 100 entries
+        if type(v).__module__ == np.__name__ and size(v) > 100:
+            x.add_row([str(k),str(v[-100:])])
+        else:
+            x.add_row([str(k),str(v)])
     pqLogger.info("\n"+str(x))
     pqLogger.info('Sending from '+str(mailinfo[0])+' to '+str(mailinfo[2]))
     msg = 'From: PQpico\nSubject: Error in PQpico\n\nError in PQpico at ' + str(datetime.datetime.now().strftime('%A %x %X:%f')) +'\n\n'+ str(traceback.format_exc()) + '\n\n' + str(x)

@@ -104,9 +104,14 @@ $RECYCLE.BIN/
 Data/
 *.npy
 *.json
+zero_crossings
+
+# Output Files from nohup
+nohup.out
 
 # Vim Swap Files
 *.swp
+*.swo
 
 .mailinfo
 .processid
