@@ -34,7 +34,7 @@ streamhandler = logging.StreamHandler()
 
 pqLogger.setLevel(logging.INFO)
 filehandler.setLevel(logging.INFO)
-streamhandler.setLevel(logging.DEBUG)
+streamhandler.setLevel(logging.INFO)
 
 formatterq = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
 filehandler.setFormatter(formatterq)
@@ -145,8 +145,9 @@ try:
 
         # For Quick Frequency Calculation:
         data_10periods, zero_indices = data.cut_off_10periods2()
+        pqLogger.info('Type of data_10periods: '+str(type(data_10periods))+' - '+str(type(data_10periods[0])))
         counter_10seconds += data_10periods.size
-        pqLogger.info('counter_10seconds : '+str(counter_10seconds))
+        pqLogger.debug('counter_10seconds : '+str(counter_10seconds))
         diff_zero_indices_10seconds += list(np.diff(zero_indices))
 
         # Save a backup for debugging (consistency check)
@@ -268,7 +269,7 @@ try:
             # New-Style Frequency Calculation
             f2start = time.time()
             mean_samples_between_zc = sum(diff_zero_indices_10seconds) / float(len(diff_zero_indices_10seconds))
-            pqLogger.info('new: '+str(len(diff_zero_indices_10seconds))+' - '+
+            #pqLogger.info('new: '+str(len(diff_zero_indices_10seconds))+' - '+
                     str(diff_zero_indices_10seconds[0])+' - '+
                     str(diff_zero_indices_10seconds[-1])+' - '+
                     str(mean_samples_between_zc))
