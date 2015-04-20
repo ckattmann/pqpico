@@ -145,7 +145,7 @@ try:
 
         # For Quick Frequency Calculation:
         data_10periods, zero_indices = data.cut_off_10periods2()
-        counter_10seconds += data10periods.size
+        counter_10seconds += data_10periods.size
         pqLogger('counter_10seconds '+str(counter_10seconds))
         diff_zero_indices_10seconds += list(np.diff(zero_indices))
 
