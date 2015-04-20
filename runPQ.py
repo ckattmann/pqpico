@@ -14,10 +14,17 @@ import datetime
 import smtplib
 import prettytable
 import traceback
+import signal
 
 # Save own PID in .processid to make killing it possible
 with open('.processid','w') as f:
     f.write(str(os.getpid()))
+
+# Add handler for SIGTERM signals
+def sigterm_handler(_signo, _stackframe):
+    print('Received SIGTERM')
+    sys.exit(0)
+signal.signal(signal.SIGTERM, sigterm_handler)
 
 # Initialize Logging
 os.remove('html/Logs/pqLog.log')
