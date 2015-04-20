@@ -12,7 +12,7 @@ print('--------------------------------')
 try:
     with open('.processid','r') as f:
         processid = int(f.read().strip())
-    os.kill(processid, signal.SIGINT)
+    os.kill(processid, signal.SIGTERM)
     print('Killed process '+str(processid))
 except IOError:
     print('No file .processid found, assuming runPQ is NOT running...')
@@ -28,5 +28,5 @@ os.system('git pull')
 #3 Start runpq anew
 print('Starting new instance of runPQ...')
 print('---------------------------------')
-subprocess.Popen('exec nohup python runPQ.py &',shell=True)
+subprocess.Popen('nohup python runPQ.py &',shell=True)
 print('New instance started')

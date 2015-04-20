@@ -15,6 +15,7 @@ try:
             f.write('Loop iteration '+str(li)+' ... processid='+str(os.getpid())+'\n')
         print('2 seconds have passed')
 except KeyboardInterrupt as e:
+    print('SIGINT!')
     with open('report.txt','a') as f:
         f.write('Keyboardinterrupt received!')
 

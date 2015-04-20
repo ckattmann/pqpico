@@ -28,8 +28,8 @@ Class  = 0
 ##########------------- Class ringarray2 for inplace queue ----------##########
 
 class ringarray2():
-    def __init__(self, max_size = 2000000):
-        self.ringBuffer = np.zeros(max_size)
+    def __init__(self, max_size=2000000, dtype='int16'):
+        self.ringBuffer = np.zeros(max_size, dtype)
         self.max_size = max_size
         self.size = 0
 
@@ -68,7 +68,7 @@ class ringarray2():
         return data_10periods, zero_indices
 
     def cut_off_10periods2(self):
-        zero_indices = np.zeros(21)
+        zero_indices = np.zeros(21,dtype='int32')
         zc = 0
         for i in xrange(1,21): 
             dataslice = self.ringBuffer[zero_indices[i-1] + 9500 : zero_indices[i-1] + 10500]
@@ -81,6 +81,7 @@ class ringarray2():
                 f.write(str(zero_crossings_in_dataslice)+'\n')
             zero_indices[i] = zero_indices[i-1] + zero_crossings_in_dataslice + 9500
         data_10periods = self.ringBuffer[:zero_indices[-1]].copy()
+
         
         self.ringBuffer[:self.size - zero_indices[-1]] = self.ringBuffer[zero_indices[-1]:self.size]
         self.size = self.size - zero_indices[-1]
@@ -191,6 +192,10 @@ def detect_zero_crossings(data):
 
 def calculate_Frequency(data, SAMPLING_RATE):        
     zero_indices = detect_zero_crossings(data)
+    pqLogger.info('old: '+str(len(zero_indices))+' - '+
+            str(np.diff(zero_indices)[0])+' - '+
+            str(np.diff(zero_indices)[-1])+' - '+
+            str(np.mean(np.diff(zero_indices))))
     #print('Number of zero_crossings_pure: '+str(zero_indices.size))
     if (zero_indices.size % 2 != 0):
         zero_indices = zero_indices[:-1]
@@ -238,7 +243,7 @@ def calculate_rms_half_period(data):
 # Harmonics & THD
 # ===============
 
-def fast_fourier_transformation2(data, SAMPLING_RATE, plot_FFT=False):            
+def fast_fourier_transformation2(data, SAMPLING_RATE, plot_FFT=False):
     zero_padding = 200000  
     #calculation of the fft      
     FFTdata = np.fft.fftshift(np.fft.fft(data, zero_padding)/zero_padding)    
@@ -255,8 +260,7 @@ def fast_fourier_transformation2(data, SAMPLING_RATE, plot_FFT=False):
     
     return FFTdata, FFTfrequencys
 
-def fast_fourier_transformation3(data, SAMPLING_RATE, plot_FFT=False):            
-        
+def fast_fourier_transformation3(data, SAMPLING_RATE, plot_FFT=False):        
     #calculation of the fft      
     FFTdata = np.fft.fftshift(np.fft.fft(data))/data.size    
     #frequencies of the harmonics    
@@ -272,7 +276,7 @@ def fast_fourier_transformation3(data, SAMPLING_RATE, plot_FFT=False):
     
     return FFTdata, FFTfrequencys
         
-def fast_fourier_transformation(data, SAMPLING_RATE, plot_FFT=False):                
+def fast_fourier_transformation(data, SAMPLING_RATE, plot_FFT=False):
     # the biggest prime value in zero_padding defines the calculation speed   
     zero_padding = 200000 
     #calculation of the fft      
@@ -531,6 +535,7 @@ def writeJSON(array, size, filename):
             for i in array:
                 i[2] = round(i[2],3)
     valuesdict = {'values': array}
+    #print(valuesdict)
     with open(os.path.join('html','jsondata',filename),'wb') as f:
         f.write(json.dumps(valuesdict))
 

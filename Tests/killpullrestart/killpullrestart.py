@@ -18,6 +18,6 @@ except OSError:
 print('Pulling Code from Github')
 
 #subprocess.call('nohup python loop.py &')
-os.system('nohup python loop.py &')
+os.system('setsid nohup python loop.py &')
 
 print('loop.py started')

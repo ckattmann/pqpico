@@ -143,8 +143,9 @@ try:
         if any(np.diff(data.get_data_view()) > 500):
             pqLogger.error('Difference between two consecutive samples greater than 500')
 
+        # For Quick Frequency Calculation:
         data_10periods, zero_indices = data.cut_off_10periods2()
-        diff_zero_indices_10seconds.append(np.diff(zero_indices))
+        diff_zero_indices_10seconds += list(np.diff(zero_indices))
 
         # Save a backup for debugging (consistency check)
         data_10periods_backup = data_10periods.copy()
@@ -163,7 +164,8 @@ try:
         waveform = data_10periods[zero_indices[18]:zero_indices[20]].copy()
         if (waveform[200] < 0):
             waveform = data_10periods[zero_indices[17]:zero_indices[19]].copy()
-        pq.writeJSON(waveform[0::200],100,'waveform.json')
+        #print(repr(waveform[0::200]))
+        #pq.writeJSON(list(waveform[0::200]),100,'waveform.json')
 
 
         # Calculate and store RMS values of half periods 
@@ -213,7 +215,6 @@ try:
         measurement_time_string = str(days)+'d '+str(hours)+'h '+str(minutes)+'m '+str(seconds)+'s'
 
         # find min, max and average frequency and voltage
-
         if (is_first_10periods):
             min_freq = frequency_10periods
             max_freq = frequency_10periods
@@ -261,9 +262,30 @@ try:
         # Calculate frequency of 10 seconds
         # =================================
         if (data_10seconds.size > 10*sample_rate):
+            
+            # New-Style Frequency Calculation
+            f2start = time.time()
+            mean_samples_between_zc = sum(diff_zero_indices_10seconds) / float(len(diff_zero_indices_10seconds))
+            pqLogger.info('new: '+str(len(diff_zero_indices_10seconds))+' - '+
+                    str(diff_zero_indices_10seconds[0])+' - '+
+                    str(diff_zero_indices_10seconds[-1])+' - '+
+                    str(mean_samples_between_zc))
+            diff_zero_indices_10seconds = []
+            freq2 = sample_rate / mean_samples_between_zc / 2
+            pqLogger.info('Frequency new: '+str(freq2)+
+                    '---> in '+str(time.time() - f2start)+' seconds')
+
+            # Old-Style Frequency Calculation
+            #f1start = time.time()
             frequency_data = data_10seconds.cut_off_front2(10*sample_rate)
-            pqLogger.debug('Samples in 10 second interval: '+str(frequency_data.size))
-            frequency = pq.calculate_Frequency(frequency_data, sample_rate)
+            #pqLogger.debug('Samples in 10 second interval: '+str(frequency_data.size))
+            #frequency = pq.calculate_Frequency(frequency_data, sample_rate)
+            #pqLogger.info('Frequency old : '+str(frequency)+
+                    #'---> in '+str(time.time() - f1start)+' seconds')
+
+            #pqLogger.info('Difference: '+str(freq2-frequency))
+
+            frequency = freq2
 
             # Write last values to json file
             freq_10seconds_list.append(frequency)
@@ -409,6 +431,7 @@ finally:
         f.write(json.dumps(infoDict))
         
     # Stop Sampling and release Picoscope unit
+    pqLogger.info('Closing Picoscope...')
     pico.close_unit()
 
     # Error Handling: Save and log all variables
