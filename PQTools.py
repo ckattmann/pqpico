@@ -354,19 +354,16 @@ def calculate_Pst(data):
     show_filter_responses = 0       #Aktivierung des Plots der Amplitudengänge der Filter.
                                     #(zu Prüfzecken der internen Filter)
     fs = 4000    
-       
+
     ## Block 1: Modulierung des Spannungssignals
-    
-    u = data - np.mean(data)                      # entfernt DC-Anteil
-    u_rms = np.sqrt(np.mean(np.power(u,2))) # Normierung des Eingangssignals
-    u = u / (u_rms * np.sqrt(2))
+    u = data - np.mean(data)                    # entfernt DC-Anteil
+    u_rms = np.sqrt(np.mean(np.power(u,2)))     
+    u = u / (u_rms * np.sqrt(2))                # Normierung des Eingangssignals
     
     ## Block 2: Quadratischer Demulator
-    
     u_0 = u**2
     
     ## Block 3: Hochpass-, Tiefpass- und Gewichtungsfilter
-    
     # Konfiguration der Filter
     HIGHPASS_ORDER  = 1 #Ordnungszahl der Hochpassfilters
     HIGHPASS_CUTOFF = 0.05 #Hz Grenzfrequenz
@@ -419,7 +416,6 @@ def calculate_Pst(data):
     u_w = signal.lfilter(b_w, a_w, u_bw)
     
     ## Block 4: Quadrierung und Varianzschätzer
-    
     LOWPASS_2_ORDER  = 1
     LOWPASS_2_CUTOFF = 1 / (2 * np.pi * 300e-3)  # Zeitkonstante 300 msek.
     SCALING_FACTOR   = 1238400  # Skalierung auf eine Wahrnehmbarkeitsskala
@@ -430,7 +426,6 @@ def calculate_Pst(data):
     s = SCALING_FACTOR * signal.lfilter(b_lp, a_lp, u_q)
     
     ## Block 5: Statistische Berechnung
-    
     p_50s = np.mean([np.percentile(s, 100-30, interpolation="linear"),
                      np.percentile(s, 100-50, interpolation="linear"),
                      np.percentile(s, 100-80, interpolation="linear")])
