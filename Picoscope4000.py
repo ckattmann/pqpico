@@ -368,9 +368,9 @@ class Picoscope4000:
             shutil.copy3(os.path.join(codedirectory_pokini,'parameters.ini'),folder)
 
         try:
-            autoStop=0
-            maxPreTriggerSamples=None
-            maxPostTriggerSamples=None
+            autoStop = 0
+            maxPreTriggerSamples = None
+            maxPostTriggerSamples = None
             #print(' Streaming Sample Interval before: '+str(self.streaming_sample_interval.value))
             res = self.lib.ps4000aRunStreaming(self.handle,
                     ctypes.byref(self.streaming_sample_interval),
@@ -385,6 +385,8 @@ class Picoscope4000:
             if VERBOSE:
                 print(' Result: '+str(res)+' (0 = PICO_OK, 64 = PICO_INVALID_SAMPLERATIO)')
                 print(' Streaming Sample Interval: '+str(self.streaming_sample_interval.value))
+            with open('.samplerate','w') as f:
+                f.write(str(self.streaming_sample_interval.value))
         finally:
             pass
 
