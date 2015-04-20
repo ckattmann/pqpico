@@ -367,7 +367,7 @@ except Exception, e:
     x.padding_width = 1
     for k,v in locs.iteritems():
         # Reduce size of big numpy arrays to the last 100 entries
-        if type(v).__module__ == np.__name__ and size(v) > 100:
+        if type(v).__module__ == np.__name__ and v.size > 100:
             x.add_row([str(k),str(v[-100:])])
         else:
             x.add_row([str(k),str(v)])
