@@ -352,7 +352,7 @@ except Exception, e:
 
     with open('.mailinfo','r') as f:
         mailinfo = f.readlines()
-    mailinfo = [x.strip() for x in mailinfo]
+    mailinfo = [line.strip() for line in mailinfo]
 
     # Prepare to send Alert Mail
     s = smtplib.SMTP('smtp.gmail.com')
@@ -361,19 +361,23 @@ except Exception, e:
     s.login(mailinfo[0], mailinfo[1])
 
     # Make a pretty table with local variables
-    x = prettytable.PrettyTable(['Variable','Content'])
-    x.align['Variable'] + 'l'
-    x.align['Content'] + 'l'
-    x.padding_width = 1
+    tablestring = prettytable.PrettyTable(['Variable','Content'])
+    tablestring.align['Variable'] + 'l'
+    tablestring.align['Content'] + 'l'
+    tablestring.padding_width = 1
     for k,v in locs.iteritems():
         # Reduce size of big numpy arrays to the last 100 entries
         if type(v).__module__ == np.__name__ and v.size > 100:
-            x.add_row([str(k),str(v[-100:])])
+            tablestring.add_row([str(k),str(v[-100:])])
         else:
-            x.add_row([str(k),str(v)])
-    pqLogger.info("\n"+str(x))
+            tablestring.add_row([str(k),str(v)])
+    pqLogger.info("\n"+str(tablestring))
     pqLogger.info('Sending from '+str(mailinfo[0])+' to '+str(mailinfo[2]))
-    msg = 'From: PQpico\nSubject: Error in PQpico\n\nError in PQpico at ' + str(datetime.datetime.now().strftime('%A %x %X:%f')) +'\n\n'+ str(traceback.format_exc()) + '\n\n' + str(x)
+    msg = 'From: PQpico\n \
+           Subject: Error in PQpico\n\n \
+           Error in PQpico at ' + str(datetime.datetime.now().strftime('%A %x %X:%f')) +'\n\n' \
+           + str(traceback.format_exc()) + '\n\n' \
+           + str(tablestring)
     for recipient in mailinfo[2:]:
         s.sendmail(mailinfo[0], recipient, str(msg))
     s.quit()
