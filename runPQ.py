@@ -263,7 +263,7 @@ try:
 
         # Calculate frequency of 10 seconds
         # =================================
-        if (data_10seconds.size > 10*sample_rate):
+        if (counter_10seconds > 10*sample_rate):
             
             # New-Style Frequency Calculation
             f2start = time.time()
@@ -303,6 +303,9 @@ try:
                 hour_number += 1
             if hour_number == 24:
                 hour_number = 0
+
+            # Reset 10 second counter
+            counter_10seconds = counter_10seconds - 10 * sample_rate
 
 
         # Prepare for 10 min Measurement
