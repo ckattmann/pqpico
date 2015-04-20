@@ -5,7 +5,7 @@ import time
 import sys
 import os
 import matplotlib.pyplot as plt
-from ringarray import ring_array, ring_array_global_data
+#from ringarray import ring_array, ring_array_global_data
 from RingArray2 import ringarray2
 import logging
 import json
@@ -27,7 +27,7 @@ streamhandler = logging.StreamHandler()
 
 pqLogger.setLevel(logging.INFO)
 filehandler.setLevel(logging.INFO)
-streamhandler.setLevel(logging.INFO)
+streamhandler.setLevel(logging.DEBUG)
 
 formatterq = logging.Formatter('%(asctime)s \t %(levelname)s \t %(message)s')
 filehandler.setFormatter(formatterq)
@@ -49,9 +49,9 @@ sample_rate = parameters['streaming_sample_interval']
 min_snippet_length = sample_rate * 0.3
 
 # Allocate data arrays & Initialize variables
-data = ringarray2(max_size = 3 * sample_rate)
-data_10seconds = ring_array(size = 20 * sample_rate) 
-data_10min = ringarray2(max_size = 5000000)
+data = pq.ringarray2(max_size = 3 * sample_rate)
+data_10seconds = pq.ringarray2(max_size = 20 * sample_rate) 
+data_10min = pq.ringarray2(max_size = 5000000)
 rms_half_period = np.zeros(20)
 
 diff_zero_indices_10seconds = []
@@ -322,7 +322,7 @@ try:
         # Calculate flicker of 10 min
         # ===========================
         if (data_10min.size > 10*60*4000):
-            pqLogger.info('Size of data10min at 10 Minutes: '+str(data_10min.size))
+            pqLogger.debug('Size of data10min at 10 Minutes: '+str(data_10min.size))
             flicker_data = data_10min.cut_off_front2(600*sample_rate/250)
             Pst, maxs = pq.calculate_Pst(flicker_data)
             lastPst = Pst
@@ -366,9 +366,9 @@ except Exception, e:
     tablestring.align['Content'] + 'l'
     tablestring.padding_width = 1
     for k,v in locs.iteritems():
-        # Reduce size of big numpy arrays to the last 100 entries
-        if type(v).__module__ == np.__name__ and v.size > 100:
-            tablestring.add_row([str(k),str(v[-100:])])
+        # Reduce size of big numpy arrays to the last 20 entries
+        if type(v).__module__ == np.__name__ and v.size > 20:
+            tablestring.add_row([str(k),str(v[-20:])])
         else:
             tablestring.add_row([str(k),str(v)])
     pqLogger.info("\n"+str(tablestring))
