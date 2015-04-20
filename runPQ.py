@@ -56,7 +56,7 @@ min_snippet_length = sample_rate * 0.3
 
 # Allocate data arrays & Initialize variables
 data = pq.ringarray2(max_size = 3 * sample_rate)
-data_10seconds = pq.ringarray2(max_size = 20 * sample_rate) 
+#data_10seconds = pq.ringarray2(max_size = 20 * sample_rate) 
 data_10min = pq.ringarray2(max_size = 5000000)
 rms_half_period = np.zeros(20)
 
@@ -115,7 +115,7 @@ try:
 
                 # Seperate arrays for data for 10 periods and data for 10 seconds
                 data.attach_to_back(snippet)
-                data_10seconds.attach_to_back(snippet)
+                #data_10seconds.attach_to_back(snippet)
                 
                 # Prepare data for Flicker calculation
                 data_for_10min, first_value = pq.convert_data_to_lower_fs(snippet, sample_rate+1, first_value)
@@ -279,7 +279,7 @@ try:
 
             # Old-Style Frequency Calculation
             #f1start = time.time()
-            frequency_data = data_10seconds.cut_off_front2(10*sample_rate)
+            #frequency_data = data_10seconds.cut_off_front2(10*sample_rate)
             #pqLogger.debug('Samples in 10 second interval: '+str(frequency_data.size))
             #frequency = pq.calculate_Frequency(frequency_data, sample_rate)
             #pqLogger.info('Frequency old : '+str(frequency)+
