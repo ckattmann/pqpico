@@ -85,6 +85,7 @@ rms_10periods = 0
 thd_10periods = 0
 measurement_time_string = ''
 day_number = 0
+counter_10seconds = 0
 
 start_time = time.time()
 
