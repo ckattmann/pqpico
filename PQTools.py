@@ -28,7 +28,7 @@ Class  = 0
 ##########------------- Class ringarray2 for inplace queue ----------##########
 
 class ringarray2():
-    def __init__(self, max_size=2000000, dtype='int16'):
+    def __init__(self, max_size=2000000, dtype='int32'):
         self.ringBuffer = np.zeros(max_size, dtype)
         self.max_size = max_size
         self.size = 0
