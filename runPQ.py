@@ -41,7 +41,6 @@ filehandler.setFormatter(formatterq)
 streamhandler.setFormatter(formatterq)
 pqLogger.addHandler(filehandler)
 pqLogger.addHandler(streamhandler)
-PLOTTING = 0
 
 # Open Picoscope
 pqLogger.info('Opening Picoscope...')
@@ -50,7 +49,7 @@ pico.run_streaming()
 pqLogger.info('...done')
 
 parameters = pico.get_parameters()
-sample_rate = parameters['streaming_sample_interval']
+sample_rate = parameters['real_sample_rate']
 
 # Set the minimum snippet size that is tested for 10 periods
 min_snippet_length = sample_rate * 0.3
