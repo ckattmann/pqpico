@@ -25,12 +25,7 @@ Resolution = (R1+R2)/R2
 f_line = 50 # Hz
 Class  = 0
 
-##########-------------Initialisierung von globalen Listen-----------##########
-
-y = np.array(np.zeros(1500))
-
-
-##########-------------Initialisierung von globalen Listen-----------##########
+##########------------- Class ringarray2 for inplace queue ----------##########
 
 class ringarray2():
     def __init__(self, max_size = 2000000):
@@ -70,8 +65,6 @@ class ringarray2():
         self.ringBuffer[:self.size - zero_indices[-1]] = self.ringBuffer[zero_indices[-1]:self.size]
         self.size = self.size - zero_indices[-1]
 
-        #print('Last Value of data_10periods1 : '+str(data_10periods[-1]))
-        #print('First Value of ringBuffer    :'+str(self.ringBuffer[-1]))
         return data_10periods, zero_indices
 
     def cut_off_10periods2(self):
@@ -121,6 +114,7 @@ class ringarray2():
         plt.plot(self.ringBuffer[:self.size])
         plt.grid(True)
         plt.show()
+
 ##########------------------------Funktionen-------------------------##########
 
 # Filters
@@ -134,11 +128,6 @@ def moving_average(a,n=25):
 def moving_average2(values,window=13):
     # window should be odd number
     weights = np.repeat(1.0, window)/window
-    #print(str(weights))
-    #including valid will REQUIRE there to be enough datapoints.
-
-    #for example, if you take out valid, it will start @ point one,
-    #not having any prior points, so itll be 1+0+0 = 1 /3 = .3333
 
     # Pad by mirroring values at the start and end
     new_values = np.append(values[0]-np.cumsum(np.diff(values[:window/2+1]))[::-1],values)
@@ -224,9 +213,8 @@ def calculate_frequency_10periods(zero_indices, SAMPLING_RATE):
 # =======================
 
 def calculate_rms(data):
-    #Der Effektivwert wird ueber alle Messpunkte gebildet             
     rms_points = np.sqrt(np.mean(np.power(data, 2)))
-    rms = rms_points/V_max*Resolution
+    rms = rms_points / V_max * Resolution
     return rms
     
 def calculate_rms_half_period(data):
@@ -365,7 +353,6 @@ def calculate_Pst(data):
     show_time_signals = 0           #Aktivierung des Plots der Zeitsignale im Flickermeter
     show_filter_responses = 0       #Aktivierung des Plots der Amplitudengänge der Filter.
                                     #(zu Prüfzecken der internen Filter)
-    
     fs = 4000    
        
     ## Block 1: Modulierung des Spannungssignals
