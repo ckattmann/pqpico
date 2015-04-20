@@ -270,9 +270,9 @@ try:
             f2start = time.time()
             mean_samples_between_zc = sum(diff_zero_indices_10seconds) / float(len(diff_zero_indices_10seconds))
             #pqLogger.info('new: '+str(len(diff_zero_indices_10seconds))+' - '+
-                    str(diff_zero_indices_10seconds[0])+' - '+
-                    str(diff_zero_indices_10seconds[-1])+' - '+
-                    str(mean_samples_between_zc))
+                    #str(diff_zero_indices_10seconds[0])+' - '+
+                    #str(diff_zero_indices_10seconds[-1])+' - '+
+                    #str(mean_samples_between_zc))
             diff_zero_indices_10seconds = []
             freq2 = sample_rate / mean_samples_between_zc / 2
             pqLogger.info('Frequency new: '+str(freq2)+
