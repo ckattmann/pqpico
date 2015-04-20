@@ -51,7 +51,7 @@ class ringarray2():
         return cut_of_data
 
     def cut_off_before_first_zero_crossing(self):
-        first_zero_index = pq.detect_zero_crossings(self.ringBuffer)[0]
+        first_zero_index = detect_zero_crossings(self.ringBuffer)[0]
         #print('First detected zero_index: '+str(first_zero_index))
         self.ringBuffer[:self.size - first_zero_index] = self.ringBuffer[first_zero_index:self.size]
         #print('First value of new data  : '+str(self.ringBuffer[0]))
@@ -59,7 +59,7 @@ class ringarray2():
         return first_zero_index
 
     def cut_off_10periods(self):
-        zero_indices = pq.detect_zero_crossings(self.ringBuffer)[:21]
+        zero_indices = detect_zero_crossings(self.ringBuffer)[:21]
         data_10periods = self.ringBuffer[:zero_indices[-1]]
         
         self.ringBuffer[:self.size - zero_indices[-1]] = self.ringBuffer[zero_indices[-1]:self.size]
@@ -72,7 +72,7 @@ class ringarray2():
         zc = 0
         for i in xrange(1,21): 
             dataslice = self.ringBuffer[zero_indices[i-1] + 9500 : zero_indices[i-1] + 10500]
-            zero_crossings_in_dataslice = pq.detect_zero_crossings(dataslice)
+            zero_crossings_in_dataslice = detect_zero_crossings(dataslice)
             if zero_crossings_in_dataslice.size > 1:
                 pqLogger.warning('Multiple zero crossings in single dataslice, taking the more plausible one')
                 pqLogger.warning(str(zero_crossings_in_dataslice))
@@ -95,18 +95,14 @@ class ringarray2():
         # Add new content to front
         self.ringBuffer[:data_to_attach.size] = data_to_attach
 
-    def check_buffer_overflow(self,size_to_attach):
+    def check_buffer_overflow(self, size_to_attach):
         while self.size + size_to_attach > self.max_size:
-            #print('==Reallocating Buffer to '+str(self.max_size * 1.7)+'==')
             pqLogger.warning('Reallocating Buffer to '+str(self.max_size * 1.7))
             # Allocate new buffer, 1.7 times bigger than the old one
             self.max_size *= 1.7 # if this resolves to float no problem, np.zeros can handle it
             newRingBuffer = np.zeros(self.max_size)
             newRingBuffer[:self.size] = self.ringBuffer[:self.size]
             self.ringBuffer = newRingBuffer
-            # Manually call garbage collection, does this make sense?
-            #gc.collect()
-
 
     # Helper Functions:
     def plot_ringBuffer(self):
