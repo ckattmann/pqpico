@@ -387,7 +387,7 @@ class Picoscope4000:
                 print(' Streaming Sample Interval: '+str(self.streaming_sample_interval.value))
             with open('.samplerate','w') as f:
                 f.write(str(self.streaming_sample_interval.value))
-            self.parameters[real_sample_rate] = self.sample_interval.value
+            self.parameters[real_sample_rate] = self.streaming_sample_interval.value
         finally:
             pass
 
