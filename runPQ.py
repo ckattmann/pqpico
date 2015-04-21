@@ -158,8 +158,7 @@ try:
         waveform = data_10periods[zero_indices[18]:zero_indices[20]].copy()
         if (waveform[200] < 0):
             waveform = data_10periods[zero_indices[17]:zero_indices[19]].copy()
-        #print(repr(waveform[0::200]))
-        #pq.writeJSON(list(waveform[0::200]),100,'waveform.json')
+        pq.writeJSON(list(waveform[0::200]),100,'waveform.json')
 
 
         # Calculate and store RMS values of half periods 
