@@ -195,9 +195,9 @@ jQuery(document).ready(function($) {
         $('.snippetsizeBox').highcharts({
             chart: {animation: false,zoomType: 'x', style: {fontFamily: 'Roboto'}},
             plotOptions: { series: {color: '#FF3005', marker: {enabled: false}, stickyTracking:false}},
-            title: {text: 'Microseconds for Computation'},
-            subtitle: {text: '10 Perioden-Mittelwerte'},
-            yAxis: {min:0, title: {text: 'Samples pro Abfrage'}},
+            title: {text: 'Schleifenzeit'},
+            subtitle: {text: 'Berechnungszeit 10 Perioden'},
+            yAxis: {min:0, title: {text: 'Berechnungszeit / sec'}},
             legend: {enabled: false},
             series: [{data: [] }],
             tooltip: {enabled: false}

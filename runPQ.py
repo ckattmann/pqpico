@@ -58,7 +58,6 @@ min_snippet_length = sample_rate * 0.3
 data = pq.ringarray2(max_size = 3 * sample_rate)
 #data_10seconds = pq.ringarray2(max_size = 20 * sample_rate) 
 data_10min = pq.ringarray2(max_size = 5000000)
-rms_half_period = np.zeros(20)
 
 diff_zero_indices_10seconds = []
 freq_10seconds_list = []
@@ -132,23 +131,25 @@ try:
                 day_number += 1
                 # This probably fails when you start a measurement between 00:00 and 00:10 at night:(
         
-        # Find 10 periods
-        # ===============
-        number_of_10periods += 1
-
+        # Plausibility Check:
+        # ===================
         if any(np.diff(data.get_data_view()) > 500):
             pqLogger.error('Difference between two consecutive samples greater than 500')
-
-        # For Quick Frequency Calculation:
-        data_10periods, zero_indices = data.cut_off_10periods2()
-        counter_10seconds += data_10periods.size
-        diff_zero_indices_10seconds += list(np.diff(zero_indices))
-
         # Check zero_indices for plausibility (45 Hz > f < 55Hz)
         if any(np.diff(zero_indices) > 11111): # < 45 Hz
             pqLogger.error('Distance between two zero crossings: '+str(max(np.diff(zero_indices))))
         if any(np.diff(zero_indices) < 9090): # > 55 Hz
             pqLogger.error('Distance between two zero crossings: '+str(min(np.diff(zero_indices))))
+
+        # Find 10 periods
+        # ===============
+        number_of_10periods += 1
+
+        data_10periods, zero_indices = data.cut_off_10periods2()
+        counter_10seconds += data_10periods.size
+
+        # For fast mean frequency calculation after 10 seconds:
+        diff_zero_indices_10seconds += list(np.diff(zero_indices)) 
 
         # Write last waveform to JSON
         if data_10periods[zero_indices[18] + 200] > 0:
@@ -157,17 +158,12 @@ try:
             waveform = data_10periods[zero_indices[17]:zero_indices[19]]
         pq.writeJSON(list(waveform[0::200]),100,'waveform.json')
 
-
-        # Calculate and store RMS values of half periods 
-        # ==============================================
-        for i in xrange(20):    
-            rms_half_period[i] = pq.calculate_rms_half_period(data_10periods[zero_indices[i]:zero_indices[i+1]])
-
         # Calculate and store frequency for 10 periods
         # =============================================
         frequency_10periods = pq.calculate_frequency_10periods(zero_indices, sample_rate)
+        frequency_10periods2 = 10.0 / (zero_indices[20] - zero_indices[0]) / sample_rate
 
-        pqLogger.debug('Frequency of 10 periods: '+str(frequency_10periods))
+        pqLogger.info('Frequency of 10 periods: '+str(frequency_10periods)+' --2: '+str(frequency_10periods2))
         pqLogger.debug('Mean value of 10 periods: '+str(np.mean(data_10periods)))
 
 
