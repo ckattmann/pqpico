@@ -158,13 +158,8 @@ try:
 
         # Calculate and store frequency for 10 periods
         # =============================================
-        frequency_10periods = pq.calculate_frequency_10periods(zero_indices, sample_rate)
-        frequency_10periods2 = 10.0 / (zero_indices[20] - zero_indices[0]) / sample_rate
-
-        pqLogger.info('Frequency of 10 periods: '+str(frequency_10periods)+' --2: '+str(frequency_10periods2))
-        pqLogger.debug('Mean value of 10 periods: '+str(np.mean(data_10periods)))
-
-
+        frequency_10periods = 10.0 * sample_rate / (zero_indices[20] - zero_indices[0])
+        
         # Calculate and store RMS values of 10 periods
         # ============================================
         rms_10periods = pq.calculate_rms(data_10periods)
