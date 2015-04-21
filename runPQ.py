@@ -130,7 +130,7 @@ try:
             ten_minute_number = datetime.datetime.now().hour*6 + datetime.datetime.now().minute / 10
             if ten_minute_number == 0:
                 day_number += 1
-                # This fails when you start a measurement between 00:00 and 00:10 at night:(
+                # This probably fails when you start a measurement between 00:00 and 00:10 at night:(
         
         # Find 10 periods
         # ===============
@@ -143,9 +143,6 @@ try:
         data_10periods, zero_indices = data.cut_off_10periods2()
         counter_10seconds += data_10periods.size
         diff_zero_indices_10seconds += list(np.diff(zero_indices))
-
-        # Save a backup for debugging (consistency check)
-        data_10periods_backup = data_10periods.copy()
 
         # Check zero_indices for plausibility (45 Hz > f < 55Hz)
         if any(np.diff(zero_indices) > 11111): # < 45 Hz
@@ -307,9 +304,6 @@ try:
         # ==============================
         counter_10minutes += data_10periods.size
          
-        if not np.array_equal(data_10periods, data_10periods_backup):
-            pqLog.critical('data_10periods was changed')
-             
         # Synchronize data so absolutely nothing is lost
         if (counter_10minutes >= 600*sample_rate):
             data.attach_to_front(data_10periods[(600*sample_rate-counter_10minutes):])
