@@ -68,14 +68,12 @@ freq_heatmap_list = []
 thd_10periods_list = []
 harmonics_10periods_list = []
 harm_heatmap_list = []
-#harmonics_10minutes_list = []
 pst_list = []
 snippet_size_list = []
 loop_times = [0]
 
 number_of_10periods = 0
 first_value = 0
-restdata = []
 is_first_iteration = 1
 is_first_10periods = 1
 lastPst = 0
@@ -182,7 +180,7 @@ try:
         pq.writeJSON([h / harmonics_10periods[0] * 100 for h in harmonics_10periods[1:25]],25,'harmonics.json')
         pq.writeJSON(thd_10periods_list,100,'thd.json')
 
-        # Write JSON file about current situation
+        # Write info.json file about current situation
         # =======================================
 
         # Construct pretty string about measurement time
@@ -194,7 +192,7 @@ try:
         measurement_time_string = str(days)+'d '+str(hours)+'h '+str(minutes)+'m '+str(seconds)+'s'
 
         # find min, max and average frequency and voltage
-        if (is_first_10periods):
+        if is_first_10periods:
             min_freq = frequency_10periods
             max_freq = frequency_10periods
             avrg_freq = frequency_10periods
@@ -202,11 +200,11 @@ try:
             min_volt = rms_10periods
             max_volt = rms_10periods
             avrg_volt = rms_10periods
-            is_first_10periods = 0
+            is_first_10periods = False
 
-        min_freq = min(min_freq,frequency_10periods)
-        max_freq = max(max_freq,frequency_10periods)
-        avrg_freq = (avrg_freq*number_of_10periods + frequency_10periods) / (number_of_10periods + 1.0)
+        min_freq = min(min_freq, frequency_10periods)
+        max_freq = max(max_freq, frequency_10periods)
+        avrg_freq = (avrg_freq * number_of_10periods + frequency_10periods) / (number_of_10periods + 1.0)
 
         min_volt = min(min_volt,rms_10periods)
         max_volt = max(max_volt,rms_10periods)
@@ -241,7 +239,15 @@ try:
         # Calculate frequency of 10 seconds
         # =================================
         if (counter_10seconds > 10*sample_rate):
-            
+            pqLogger.info(str(counter_10seconds))
+
+            # Reset 10 second counter
+            counter_10seconds = counter_10seconds - 10 * sample_rate
+
+            pqLogger.info(str(counter_10seconds / (sample_rate / 100)))
+            pqLogger.info(str(counter_10seconds))
+            overhang = diff_zero_indices_10seconds[:-(counter_10seconds / (sample_rate / 20))]
+
             # New-Style Frequency Calculation
             f2start = time.time()
             mean_samples_between_zc = sum(diff_zero_indices_10seconds) / float(len(diff_zero_indices_10seconds))
@@ -281,8 +287,6 @@ try:
             if hour_number == 24:
                 hour_number = 0
 
-            # Reset 10 second counter
-            counter_10seconds = counter_10seconds - 10 * sample_rate
 
 
         # Prepare for 10 min Measurement

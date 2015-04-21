@@ -467,16 +467,14 @@ jQuery(document).ready(function($) {
         updateInfo();
 
         numberOfLogs = 0;
-        
         function updateLog() {
-            console.log('Running updateLog');
             $.ajax({url:'Logs/pqLog.log', dataType:'text'}).done(function(text){
                 lines = text.split('\n');
                 for (var line = numberOfLogs; line < lines.length-1; line++) {
                     entries = lines[line].split('\t');
                     $('.logs .logtable').append('<tr><td>'+entries[0].trim()+'</td><td>'+entries[1].trim()+'</td><td>'+entries[2].trim()+'</td></tr>');
                     numberOfLogs++;
-                    console.log(entries[0].trim())
+                    //console.log(entries[0].trim())
                 }
                 setTimeout(updateLog,2000);
             });

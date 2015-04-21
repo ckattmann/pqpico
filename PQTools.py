@@ -190,6 +190,7 @@ def detect_zero_crossings(data):
 
     return zero_crossings_combined
 
+# DEPRECATED
 def calculate_Frequency(data, SAMPLING_RATE):        
     zero_indices = detect_zero_crossings(data)
     pqLogger.info('old: '+str(len(zero_indices))+' - '+
@@ -204,11 +205,6 @@ def calculate_Frequency(data, SAMPLING_RATE):
     #print(samplesbetweenzeroindices)
     frequency = float((zero_indices.size-1)/2) / ((zero_indices[-1]-zero_indices[1])) * SAMPLING_RATE
     return frequency        
-
-def calculate_frequency_10periods(zero_indices, SAMPLING_RATE):
-    time_10periods = float((zero_indices[20] - zero_indices[0])) / SAMPLING_RATE
-    frequency_10periods = 10.0 / time_10periods
-    return frequency_10periods
 
 # Voltage RMS calculation
 # =======================
