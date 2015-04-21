@@ -150,14 +150,11 @@ try:
         if any(np.diff(zero_indices) < 9090): # > 55 Hz
             pqLogger.error('Distance between two zero crossings: '+str(min(np.diff(zero_indices))))
 
-        pqLogger.debug('Cutting off 10 periods containing '+str(zero_indices[20])+' samples')
-
-        #data_10periods = data.cut_off_front2(zero_indices[20], 20)
-
         # Write last waveform to JSON
-        waveform = data_10periods[zero_indices[18]:zero_indices[20]].copy()
-        if (waveform[200] < 0):
-            waveform = data_10periods[zero_indices[17]:zero_indices[19]].copy()
+        if data_10periods[zero_indices[18] + 200] > 0:
+            waveform = data_10periods[zero_indices[18]:zero_indices[20]]
+        else:
+            waveform = data_10periods[zero_indices[17]:zero_indices[19]]
         pq.writeJSON(list(waveform[0::200]),100,'waveform.json')
 
 
@@ -380,6 +377,7 @@ except Exception, e:
         mailinfo = f.readlines()
     mailinfo = [line.strip() for line in mailinfo]
 
+    pqLogger.critical(str(traceback.format_exc()))
     # Prepare to send Alert Mail
     s = smtplib.SMTP('smtp.gmail.com')
     s.ehlo()
@@ -397,7 +395,7 @@ except Exception, e:
             tablestring.add_row([str(k),str(v[-20:])])
         else:
             tablestring.add_row([str(k),str(v)])
-    pqLogger.info("\n"+str(tablestring))
+    #pqLogger.info("\n"+str(tablestring))
     pqLogger.info('Sending from '+str(mailinfo[0])+' to '+str(mailinfo[2]))
     msg = 'From: PQpico\n \
            Subject: Error in PQpico\n\n \
