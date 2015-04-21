@@ -72,6 +72,7 @@ harm_heatmap_list = []
 #harmonics_10minutes_list = []
 pst_list = []
 snippet_size_list = []
+loop_times = [0]
 
 number_of_10periods = 0
 first_value = 0
@@ -86,6 +87,7 @@ thd_10periods = 0
 measurement_time_string = ''
 day_number = 0
 counter_10seconds = 0
+is_very_first_iteration = True
 
 start_time = time.time()
 
@@ -104,16 +106,12 @@ hour_number = datetime.datetime.now().hour
 # ========================================
 try:
     while True:
+
         while data.size < min_snippet_length:
             
             snippet = pico.get_queue_data()
 
             if snippet is not None:
-                # Write snippet size to JSON
-                snippet_size_list.append(snippet.size)
-                pq.writeJSON(snippet_size_list,250,'snippetsize.json')
-
-                # Seperate arrays for data for 10 periods and data for 10 seconds
                 data.attach_to_back(snippet)
                 #data_10seconds.attach_to_back(snippet)
                 
@@ -121,20 +119,18 @@ try:
                 data_for_10min, first_value = pq.convert_data_to_lower_fs(snippet, sample_rate+1, first_value)
                 data_10min.attach_to_back(data_for_10min)
 
-                pqLogger.debug('Length of snippet:       +'+str(snippet.size))
-                pqLogger.debug('Length of current data: '+str(data.size))
-                    
+        loop_start_time = time.time()
+
         # Cut off everything before the first zero crossing:
         # ==================================================
         if is_first_iteration: #happens every 10 Minutes
-            first_zero_crossing = data.cut_off_before_first_zero_crossing()
+            counter_10minutes = data.cut_off_before_first_zero_crossing()
             is_first_iteration = 0
-            counter = first_zero_crossing
             
             ten_minute_number = datetime.datetime.now().hour*6 + datetime.datetime.now().minute / 10
             if ten_minute_number == 0:
                 day_number += 1
-                # This fails when you start a measurement between 00:00 and 00:10 :(
+                # This fails when you start a measurement between 00:00 and 00:10 at night:(
         
         # Find 10 periods
         # ===============
@@ -273,8 +269,8 @@ try:
                     #str(mean_samples_between_zc))
             diff_zero_indices_10seconds = []
             freq2 = sample_rate / mean_samples_between_zc / 2
-            pqLogger.info('Frequency new: '+str(freq2)+
-                    '---> in '+str(time.time() - f2start)+' seconds')
+            #pqLogger.info('Frequency new: '+str(freq2)+
+                    #'---> in '+str(time.time() - f2start)+' seconds')
 
             # Old-Style Frequency Calculation
             #f1start = time.time()
@@ -309,14 +305,14 @@ try:
 
         # Prepare for 10 min Measurement
         # ==============================
-        counter += data_10periods.size
+        counter_10minutes += data_10periods.size
          
         if not np.array_equal(data_10periods, data_10periods_backup):
             pqLog.critical('data_10periods was changed')
              
         # Synchronize data so absolutely nothing is lost
-        if (counter >= 600*sample_rate):
-            data.attach_to_front(data_10periods[(600*sample_rate-counter):])
+        if (counter_10minutes >= 600*sample_rate):
+            data.attach_to_front(data_10periods[(600*sample_rate-counter_10minutes):])
             is_first_iteration = 1
             
             # Calculate RMS of 10 min
@@ -370,6 +366,10 @@ try:
             Plt = pq.calculate_Plt(pst_list)
             lastPlt = Plt
             pqLogger.debug(pq.test_plt(Plt))
+
+
+        loop_times.append(time.time() - loop_start_time)
+        pq.writeJSON(loop_times,2500,'snippetsize.json')
 
 except KeyboardInterrupt:
     pqLogger.critical('Aborting after SIGINT')
