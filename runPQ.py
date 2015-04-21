@@ -130,16 +130,6 @@ try:
             if ten_minute_number == 0:
                 day_number += 1
                 # This probably fails when you start a measurement between 00:00 and 00:10 at night:(
-        
-        # Plausibility Check:
-        # ===================
-        if any(np.diff(data.get_data_view()) > 500):
-            pqLogger.error('Difference between two consecutive samples greater than 500')
-        # Check zero_indices for plausibility (45 Hz > f < 55Hz)
-        if any(np.diff(zero_indices) > 11111): # < 45 Hz
-            pqLogger.error('Distance between two zero crossings: '+str(max(np.diff(zero_indices))))
-        if any(np.diff(zero_indices) < 9090): # > 55 Hz
-            pqLogger.error('Distance between two zero crossings: '+str(min(np.diff(zero_indices))))
 
         # Find 10 periods
         # ===============
@@ -148,6 +138,14 @@ try:
         data_10periods, zero_indices = data.cut_off_10periods2()
         counter_10seconds += data_10periods.size
 
+        # Plausibility Check:
+        if any(np.diff(data.get_data_view()) > 500):
+            pqLogger.error('Difference between two consecutive samples greater than 500')
+        # Check zero_indices for plausibility (45 Hz > f < 55Hz)
+        if any(np.diff(zero_indices) > 11111): # < 45 Hz
+            pqLogger.error('Distance between two zero crossings: '+str(max(np.diff(zero_indices))))
+        if any(np.diff(zero_indices) < 9090): # > 55 Hz
+            pqLogger.error('Distance between two zero crossings: '+str(min(np.diff(zero_indices))))
         # For fast mean frequency calculation after 10 seconds:
         diff_zero_indices_10seconds += list(np.diff(zero_indices)) 
 
