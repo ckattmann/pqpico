@@ -117,12 +117,12 @@ class ringarray2():
 # Filters
 # =======
 
-def moving_average(a,n=25):
-    ret = np.cumsum(a,dtype=float)
+def moving_average(a,n=25):     #erster Filter für gleitenden Mittelwert
+    ret = np.cumsum(a,dtype=float) #
     ret[n:] = ret[n:] - ret[:-n]
     return np.append(np.zeros(n/2),ret[n-1:]/n)
 
-def moving_average2(values,window=13):
+def moving_average2(values,window=13): #dieser Filter wird aktuell verwendet und ist für bessere Starteigenschaften Modifizert
     # window should be odd number
     weights = np.repeat(1.0, window)/window
 
@@ -131,12 +131,12 @@ def moving_average2(values,window=13):
     new_values = np.append(new_values,values[-1]+np.cumsum(np.diff(values[-(window/2+1):]))[::1])
     
     smas = np.convolve(new_values, weights, 'same')
-    smas = smas[window/2:-window/2+1]
+    smas = smas[window/2:-window/2+1] #Start und Ende wird weggeschnitten
     smas[0] = values[0]
     smas[-1] = values[-1]
     return  smas# as a numpy array
 
-def moving_average3(a,n=25):
+def moving_average3(a,n=25):        #3. Filter wird aktuell nicht verwendet, verwendet nicht die Convolution Funktion
     ret = np.cumsum(a,dtype=float)
     ret_begin = ret[:n:2]/np.arange(1,n+1,2)
     ret_end = np.cumsum(a[-n/2:], dtype=float)
@@ -146,7 +146,7 @@ def moving_average3(a,n=25):
     ret[-(n/2+1):] = ret_end
     return ret
 
-def moving_average4(values,window=13):
+def moving_average4(values,window=13):         #4. Filter nutzt die fftconvolution des Scipy Moduls 
     # window should be odd number
     weights = np.repeat(1.0, window)/window
     new_values = np.append(values[0]-np.cumsum(np.diff(values[:window/2+1]))[::-1],values)
@@ -176,9 +176,9 @@ def Lowpass_Filter(data, SAMPLING_RATE):
 # Frequency Calculation
 # =====================
 
-def detect_zero_crossings(data):
-    data_filtered = moving_average2(data)
-    pos = data_filtered > 0
+def detect_zero_crossings(data): #erkennen der Nulldurchgänge
+    data_filtered = moving_average2(data) #Daten werden über Convolution Filter gefiltert
+    pos = data_filtered > 0     #
     npos = ~pos
     zero_crossings_raw = ((pos[:-1] & npos[1:]) | (npos[:-1] & pos[1:]))
 
@@ -356,7 +356,7 @@ def calculate_Pst(data):
     u_rms = np.sqrt(np.mean(np.power(u,2)))     
     u = u / (u_rms * np.sqrt(2))                # Normierung des Eingangssignals
     
-    ## Block 2: Quadratischer Demulator
+    ## Block 2: Quadrierer
     u_0 = u**2
     
     ## Block 3: Hochpass-, Tiefpass- und Gewichtungsfilter
@@ -374,6 +374,7 @@ def calculate_Pst(data):
     # subtract DC component to limit filter transients at start of simulation
     u_0_ac = u_0 - np.mean(u_0)
     
+    #Hochpassfilter
     b_hp, a_hp = signal.butter(HIGHPASS_ORDER, (HIGHPASS_CUTOFF/(fs/2)), 'highpass')
     u_hp = signal.lfilter(b_hp, a_hp, u_0_ac)
     
@@ -381,6 +382,7 @@ def calculate_Pst(data):
     smooth_limit = min(round(fs / 10), len(u_hp))
     u_hp[ : smooth_limit] = u_hp[ : smooth_limit] * np.linspace(0, 1, smooth_limit)
     
+    #Tiefpassfilter    
     b_bw, a_bw = signal.butter(LOWPASS_ORDER, (LOWPASS_CUTOFF/(fs/2)), 'lowpass')
     u_bw = signal.lfilter(b_bw, a_bw, u_hp)
     
@@ -416,8 +418,10 @@ def calculate_Pst(data):
     LOWPASS_2_CUTOFF = 1 / (2 * np.pi * 300e-3)  # Zeitkonstante 300 msek.
     SCALING_FACTOR   = 1238400  # Skalierung auf eine Wahrnehmbarkeitsskala
     
+    #Quadrierer    
     u_q = u_w**2
     
+    #Varianzschätzer
     b_lp, a_lp = signal.butter(LOWPASS_2_ORDER,(LOWPASS_2_CUTOFF/(fs/2)),'low')
     s = SCALING_FACTOR * signal.lfilter(b_lp, a_lp, u_q)
     
@@ -503,15 +507,6 @@ def calculate_Plt(Pst_list):
     P_lt = np.power(np.sum(np.power(Pst_list,3)/12),1./3)
     return P_lt
     
-# Unbalance
-# =========
-
-def calculate_unbalance(rms_10min_u, rms_10min_v, rms_10min_w):
-    a = -0.5+0.5j*np.sqrt(3)
-    u1 =1.0/3*(rms_10min_u+rms_10min_v+rms_10min_w)
-    u2 = 1.0/3 *(rms_10min_u+a*rms_10min_v+a**2*rms_10min_w)
-    return np.abs(u2)/np.abs(u1)*100
-    
 # Other useful functions
 # ======================
     
@@ -545,6 +540,7 @@ def writeCSV(value,filename):
     #def __init__(self,        
 
 def accuracy_of_flicker_measurement(fs=4000):
+    # Flickerfrequenz    
     f_F = np.array([0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.8,9.5,10.0,10.5,11.0,11.5,12.0,13.0,14.0,15.0,16.0,17.0,18.0,19.0,20.0,21.0,22.0,23.0,24.0])
     time = 600 #sec.
     t = np.linspace(0,600,time*fs)
@@ -556,39 +552,57 @@ def accuracy_of_flicker_measurement(fs=4000):
         # ===============================
 
     print('Start der Normprüfung mit sinusförmiger Spannungsänderung:\n')
+    # Prozentuale Spannungsschwangung    
     deltaU = np.array([2.34,1.432,1.08,0.882,0.754,0.654,0.568,0.5,0.446,0.398,0.36,0.328,0.3,0.28,0.266,0.256,0.250,0.254,0.26,0.27,0.282,0.296,0.312,0.348,0.388,0.432,0.48,0.53,0.584,0.64,0.7,0.76,0.824,0.89,0.962])    
     for i in range(deltaU.size):
+        # Flickerschwankung wird erzeugt        
         ampl_flicker = deltaU[i]/200*np.sin(2*np.pi*f_F[i]*t)    
+        # Spannungssignal mit Flickerschwankung wird erzeugt        
         data = (1+ampl_flicker)*np.sin(2*np.pi*50*t)
+        # maximaler Flickereindruck wird berechnet und ausgegeben.         
         print('P_F5,max : {0:9.6f} |Flickerfrequenz [Hz] : {1:4.1f} |Spannungsschwankung [%]: {2:4.3f}'.format(calculate_Pst(data)[1],f_F[i],deltaU[i]))
 
         # rechteckförmige Spannungsänderung:
         # ==================================
 
     print('\nStart der Normprüfung mit rechteckförmiger Spannungsänderung:\n')
+    # Prozentuale Spannungsschwangung     
     deltaU = np.array([0.514,0.471,0.432,0.401,0.374,0.355,0.345,0.333,0.316,0.293,0.269,0.249,0.231,0.217,0.207,0.201,0.199,0.200,0.205,0.213,0.223,0.234,0.246,0.275,0.307,0.344,0.367,0.413,0.452,0.498,0.546,0.586,0.604,0.680,0.743])    
     for i in range(deltaU.size):
+        # Flickerschwankung wird erzeugt        
         ampl_flicker = deltaU[i]/200*signal.square(2*np.pi*f_F[i]*t)   
+        # Spannungssignal mit Flickerschwankung wird erzeugt        
         data = (1+ampl_flicker)*np.sin(2*np.pi*50*t)
+        # maximaler Flickereindruck wird berechnet und ausgegeben.        
         print('P_F5,max : {0:9.6f} |Flickerfrequenz [Hz] : {1:4.1f} |Spannungsschwankung [%]: {2:4.3f}'.format(calculate_Pst(data)[1],f_F[i],deltaU[i]))
 
     # Klassierer-tester:
     # ==================
 
     print('\nStart der Normprüfung für Klassierer mit sinusförmiger Spannungsänderung:\n')
+    # Spannungsänderungen pro Minute    
     aenderung = np.array([1,2,7,39,110,1620],float) #r/sec
+    # Prozentuale Spannungsschwangung     
     deltaU = np.array([2.72,2.21,1.46,0.905,0.725,0.402])
     for i in range(deltaU.size):
+        # Flickerschwankung wird erzeugt
         ampl_flicker = deltaU[i]/200*signal.square(2*np.pi*aenderung[i]/120*t)
+        # Spannungssignal mit Flickerschwankung wird erzeugt        
         data = (1+ampl_flicker)*np.sin(2*np.pi*50*t)
+        # Flicker wird berechnet und ausgegeben.        
         print('P_st : {0:9.6f} |Änderungsrate [r/min^-1] : {1:4.0f} |Spannungsschwankung [%]: {2:4.3f}'.format(calculate_Pst(data)[0],aenderung[i],deltaU[i]))
 
     print('\nFaktor 5 Prüfung (5-fache Schwankung = 5-facher Flickerwert):\n')
+    # Spannungsänderungen pro Minute    
     aenderung = np.array([1,2,7,39,110,1620],float) #r/sec
+    # Prozentuale Spannungsschwangung     
     deltaU = np.array([2.72,2.21,1.46,0.905,0.725,0.402])*5
     for i in range(deltaU.size):
+        # Flickerschwankung wird erzeugt
         ampl_flicker = deltaU[i]/200*signal.square(2*np.pi*aenderung[i]/120*t)
+        # Spannungssignal mit Flickerschwankung wird erzeugt        
         data = (1+ampl_flicker)*np.sin(2*np.pi*50*t)
+        # Flicker wird berechnet und ausgegeben.        
         print('P_st : {0:9.6f} |Änderungsrate [r/min^-1] : {1:4.0f} |Spannungsschwankung [%]: {2:4.3f}'.format(calculate_Pst(data)[0],aenderung[i],deltaU[i]))
 
     print('\nNormprüfung wurde erfolgreich beendet!')
@@ -596,7 +610,7 @@ def accuracy_of_flicker_measurement(fs=4000):
 # Plot functions
 # ==============
 
-class plotting_frequency():
+class plotting_frequency(): #Nach Bedarf kann die Frequenz in Python geplottet werden (verlangsamt die Messung deutlich durch ständiges neu Plotten)
     def __init__(self):
         self.y = np.array(np.zeros(1500))
         self.x = np.arange(0,self.y.size/5,0.2)
@@ -626,13 +640,13 @@ class plotting_frequency():
 # Compare with Standard
 # =====================
 
-def test_thd(thd):
+def test_thd(thd): #THD wird mit den Normvorgaben verglichen
     if thd>8:
         return 'The THD is with '+str(thd)+' % too high!'
     else:
         return 'THD of 10 min: '+str(thd)+' %'
 
-def test_harmonics(harmonics):
+def test_harmonics(harmonics): #Harmonische werden mit den Normvorgaben verglichen
     limits = np.array([0.02,0.05,0.01,0.06,0.005,0.05,0.005,0.015,0.005,0.035,
                        0.005,0.03,0.005,0.005,0.005,0.02,0.005,0.015,0.005,
                        0.005,0.005,0.015,0.005,0.015])
@@ -643,7 +657,7 @@ def test_harmonics(harmonics):
     else:
         return 'Harmonics are ok!'
 
-def test_rms(rms):
+def test_rms(rms):#Effektivwert wird mit den Normvorgaben verglichen
     if rms<230*0.9:
         return 'The RMS is with '+str(rms)+' V too low!'
     elif rms>230*1.1:
@@ -651,7 +665,7 @@ def test_rms(rms):
     else:        
         return 'RMS voltage of 10 min: '+str(rms)+' V'
 
-def test_frequency(frequency):
+def test_frequency(frequency): #Frequenz wird mit den Normvorgaben verglichen
     if frequency<49.5:
         return 'The frequency is with '+str(frequency)+' Hz too low!'
     elif frequency>50.5:
@@ -659,7 +673,7 @@ def test_frequency(frequency):
     else:
         return 'Frequency of 10s: '+str(frequency)+' Hz'
 
-def test_plt(plt):
+def test_plt(plt):# Langzeitflicker wird mit den Normvorgaben verglichen.
     if plt>1:
         return 'The Plt is with a value of '+str(plt)+' too high!'
     else:
