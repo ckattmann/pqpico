@@ -239,14 +239,17 @@ try:
         # Calculate frequency of 10 seconds
         # =================================
         if (counter_10seconds > 10*sample_rate):
-            pqLogger.info(str(counter_10seconds))
+            #pqLogger.info(str(counter_10seconds))
 
             # Reset 10 second counter
             counter_10seconds = counter_10seconds - 10 * sample_rate
 
-            pqLogger.info(str(counter_10seconds / (sample_rate / 100)))
-            pqLogger.info(str(counter_10seconds))
-            overhang = diff_zero_indices_10seconds[:-(counter_10seconds / (sample_rate / 20))]
+            #pqLogger.info(str(counter_10seconds / (sample_rate / 100)))
+            #pqLogger.info(str(counter_10seconds))
+            #pqLogger.info(str(counter_10seconds / (sample_rate / 20)))
+            if counter_10seconds / (sample_rate / 20):
+                overhang = diff_zero_indices_10seconds[-(counter_10seconds / (sample_rate / 20)):]
+                #pqLogger.info(overhang)
 
             # New-Style Frequency Calculation
             f2start = time.time()
