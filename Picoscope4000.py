@@ -31,8 +31,7 @@ VERBOSE = 0
 # If 1, generates profile.txtpicotec
 PROFILING = 0 # Attention, may redirect standard print output, restart python kernel if output disappears
 
-## Constants of PS2000.dll
-# channel identifiers
+# Channel identifiers
 PS4000_CHANNEL_A = 0
 PS4000_CHANNEL_B = 1
 PS4000_CHANNEL_C = 2
@@ -89,14 +88,7 @@ MILLISECONDS = 4
 SECONDS = 5
 
 # Strings for Sample Rate
-SAMPLERATE_MAP = {
-0:'T',
-1:'G',
-2:'M',
-3:'k',
-4:'',
-5:'',
-}
+SAMPLERATE_MAP = { 0:'T', 1:'G', 2:'M', 3:'k', 4:'', 5:'' }
 
 # Set the correct dll as  LIBNAME
 if sys.platform == 'win32':
